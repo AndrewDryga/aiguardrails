@@ -7,7 +7,6 @@ export async function GET() {
     "/guides/",
     "/resources/",
     "/about/",
-    "/tools-we-build/",
     "/tools/" + site.tool + "/",
   ];
   const urls = [

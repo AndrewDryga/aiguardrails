@@ -10,7 +10,7 @@ Use Node 26. Run `npm ci`, then `npm run dev`. Run `npm run verify` before a com
 
 Guides live in `src/content/guides/`. Their frontmatter owns titles, descriptions, a self-contained `answer`, topic categories, source links, related reading, keyword intent and review dates. The content schema validates these fields. Each guide is rendered as crawlable HTML and a downloadable Markdown file. The opening answer appears once in each format; Markdown links retain their absolute source URLs. Every guide needs contextual links and a matching topic in the library. The build audit checks full-library coverage, incoming links, contents anchors and export fidelity. Local, gitignored `research/` contains keyword evidence and page mapping. It is not committed or copied into the public site.
 
-Technical statements need current primary sources. Keep instructions and examples useful without buying a product. Disclose related products through the shared footer and tools page. Read `ATTRIBUTION.md` for the requested Humanizer and Unslop references.
+Technical statements need current primary sources. Keep instructions and examples useful without buying a product. Treat this as a standalone topic publication. Use its own identity in the layout, bylines, metadata and share images. Mention products only when they help answer a guide's question, with a brief affiliation disclosure beside the example. Keep ownership information in the editorial policy; do not add portfolio footers, product hubs or sitewide sales links. Read `ATTRIBUTION.md` for the requested Humanizer and Unslop references.
 
 ## Cloudflare Pages
 

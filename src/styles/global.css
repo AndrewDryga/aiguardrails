@@ -327,9 +327,6 @@ button {
   flex-wrap: wrap;
   font-size: 14px;
 }
-.footer-note {
-  grid-column: 1/-1;
-}
 .page-intro {
   padding-top: 64px;
   padding-bottom: 48px;

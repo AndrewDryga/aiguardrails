@@ -62,8 +62,16 @@ Set a task budget for time, tool calls and relevant resource consumption. Consid
 
 Cancellation needs a defined effect. Prevent future dispatches immediately, then report whether an already running operation can be interrupted. Do not claim that canceling the conversation reverses a completed change.
 
-## An example with separate local and remote controls
+## Example: diagnose a service, then prepare a fix
 
-In an engineering workflow, a local coding agent and a remote production action need different controls. [co:op](https://coop.dryga.com/) runs coding agents in a project sandbox. [Emisar](https://emisar.dev/) provides declared remote infrastructure actions with policy, approval and audit. [Ryker](https://ryker.emisar.dev/) is an engineering and on-call teammate that uses those components for its work.
+Consider a hypothetical agent investigating a slow service. It may need to read service health, reproduce a bug in a checkout and propose a restart. Those steps cross different boundaries:
 
-An [agent sandbox](/guides/ai-agent-sandbox/) permits changes within its configured scope. Remote action controls allow the effects of an authorized operation. Review both scopes, and test that the agent cannot turn a failure in one part of the workflow into wider authority elsewhere.
+| Step | Permission to grant | Check before proceeding |
+| --- | --- | --- |
+| Read service health | A diagnostic operation on the assigned service | The receiving system checks the caller and target |
+| Prepare a code change | Writes and test execution in a task workspace | The [agent sandbox](/guides/ai-agent-sandbox/) limits reachable files, credentials and network destinations |
+| Request a restart | One declared action on a named service | Policy evaluates the request and any required approval before execution |
+
+For the remote steps, [Emisar](https://emisar.dev/) exposes declared infrastructure actions through CLI or MCP, with policy, approval and audit. An agent can request an allowed diagnostic action without receiving a general administrator shell. The action definition and host permissions still determine what execution can do; its [security model](https://emisar.dev/docs/security-model) explains that boundary. Emisar shares ownership with this publication.
+
+Permission to prepare a patch does not authorize a production restart. Keep the two decisions separate, and test that a denied remote request cannot be retried through an unrestricted credential in the local workspace.

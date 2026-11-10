@@ -5,83 +5,77 @@ import { site } from "../site";
 
 <Base
   title={"About and editorial policy | " + site.name}
-  description={
-    "Who publishes " +
-    site.name +
-    ", how we check our guides, and how our products relate to the advice."
-  }
+  description="AI Guardrails explains how to check model inputs, outputs and actions, with practical examples for people building AI systems."
 >
   <section class="page-intro wrap narrow">
     <p class="eyebrow">About this site</p>
-    <h1>
-      Useful advice.
-      <br />
-      Clear ownership.
-    </h1>
+    <h1>A field guide to AI guardrails.</h1>
     <p class="lede">
-      {site.name} is published by the team behind Emisar, Ryker and co:op.
+      AI Guardrails explains how to check model inputs, outputs and actions,
+      with practical examples for people building AI systems.
     </p>
   </section>
   <div class="prose wrap narrow">
-    <h2>Why we publish these guides</h2>
+    <h2>What you can find here</h2>
     <p>
-      Giving an agent tools creates practical questions. What can it read? What
-      can it change? Where should a request stop? Our guides explain the
-      controls and the tradeoffs, with examples you can use in your own system.
+      A useful guardrail has a specific job: reject an unsafe request, check a
+      tool argument, limit access to a resource or catch a bad result. The
+      guides explain where each check belongs and how to test the cases it might
+      miss.
     </p>
     <p>
-      We build products in this area, so we have a commercial interest in some
-      of the topics. Product links are labeled, and the{" "}
-      <a href="/tools-we-build/">tools we build</a> page explains their
-      different roles.
+      Start with{" "}
+      <a href="/guides/what-are-ai-guardrails/">what AI guardrails do</a>, then
+      work through{" "}
+      <a href="/guides/prompt-injection-prevention/">
+        prompt injection prevention
+      </a>
+      , <a href="/guides/tool-calling-guardrails/">tool permissions</a> or{" "}
+      <a href="/guides/ai-guardrails-testing/">guardrail testing</a>. The{" "}
+      <a href="/tools/policy-checker/">policy lab</a> lets you inspect a small
+      decision rule, and the <a href="/resources/">resource library</a> provides
+      worksheets and examples to adapt.
     </p>
-    <h2>How we write and check</h2>
+    <h2>Use the examples in your own system</h2>
     <p>
-      Each guide links to the documents behind its technical claims. We prefer
-      primary sources: the standard, the project's documentation, or the code
-      that owns a behavior. Example policies and records are teaching material.
-      They are not reports of a customer's deployment.
+      Each guide connects a failure to a control and a way to check it. Review
+      the assumptions before copying an example: the same read operation may
+      expose public status in one system and private records in another.
+      Successful tests apply to the configuration and cases they covered.
+    </p>
+    <h2>Sources and review dates</h2>
+    <p>
+      Technical claims link to primary sources: standards, project documentation
+      or the code that implements a behavior. Each guide has a review date, a
+      source list and a downloadable Markdown version. Definitions and examples
+      can be cited using the citation at the end of the article.
     </p>
     <p>
-      Review dates mean we checked the article's content. They do not mean we
-      ran every vendor product, certified an integration, or tested a production
-      system. We label runnable examples, conceptual examples and browser-only
-      demonstrations separately.
+      A review date records a content check. Product trials and deployment tests
+      need their own evidence. Examples say whether they are conceptual,
+      runnable or browser-only demonstrations; fictional records are labeled.
     </p>
-    <h2>Where the advice stops</h2>
+    <h2>Product examples and ownership</h2>
     <p>
-      A guardrail addresses a defined failure. A policy needs enforcement. A
-      sandbox has its own boundary. None of these makes every permitted action
-      harmless. Adapt the examples to your assets, permissions and recovery
-      procedures.
+      A product belongs in a guide when its documented behavior helps explain
+      the topic. Comparisons distinguish what the documentation says from what a
+      reader still needs to test. Instructions and templates should remain
+      useful with other implementations.
     </p>
     <p>
-      Our governance templates are engineering starting points. Requirements for
-      a particular industry, contract or jurisdiction need the right specialist
-      review.
+      This publication shares ownership with Emisar, Ryker and co:op. Relevant
+      examples disclose that relationship beside the mention.
     </p>
     <h2>Privacy</h2>
     <p>
       The interactive tools run in your browser. They do not send the values you
       enter to us. We do not add analytics, advertising scripts or tracking
-      cookies. Cloudflare Pages serves the site and may process request data under{" "}
+      cookies. Cloudflare Pages serves the site and may process request data
+      under{" "}
       <a href="https://www.cloudflare.com/privacypolicy/">
         Cloudflare's privacy policy
       </a>
       .
-    </p>
-    <h2>Related reading</h2>
-    <p>
-      {site.theme === "guardrails" ? (
-        <a href="https://aiagentgovernance.dev/">
-          AI Agent Governance covers ownership, permissions and operating
-          procedures.
-        </a>
-      ) : (
-        <a href="https://aiguardrails.dev/">
-          AI Guardrails covers technical checks, failure cases and testing.
-        </a>
-      )}
     </p>
   </div>
 </Base>

@@ -30,6 +30,8 @@ Outside the task: personal files, production tokens, unrelated projects
 
 This map describes intended boundaries. It is not proof that a particular runtime enforces them.
 
+[co:op](https://coop.dryga.com/) is one implementation of a project workspace for coding agents. Its sandbox controls files, credentials and network access according to the selected mode and configuration. Use its [documentation](https://coop.dryga.com/docs.html) to identify those settings, then apply the boundary checks below to the environment you run. co:op shares ownership with this publication.
+
 | Boundary | Useful question | Evidence to collect |
 | --- | --- | --- |
 | Filesystem | Which directories and sockets are mounted? | Attempted access to a synthetic outside marker |
@@ -72,8 +74,6 @@ Run the tests for each supported network and mount configuration. Passing on a d
 Suppose the sandbox can call a service-status API. The local runtime decides whether the network connection is possible. The receiving service decides whether this identity may inspect that target. Both decisions matter.
 
 If a production administrator token is available inside the sandbox, local filesystem isolation does not reduce the token's remote permissions. Prefer a narrow remote operation with [execution-time checks](/guides/tool-calling-guardrails/). Inspect alternate routes that bypass that operation.
-
-For an affiliated example, [co:op](https://coop.dryga.com/) addresses the local coding environment, while [Emisar](https://emisar.dev/) provides declared remote infrastructure actions through CLI or MCP. They share this site's ownership. Their roles require separate configuration and verification; neither product name establishes that a particular workflow is contained.
 
 ## Define completion, cancellation and recovery
 

@@ -41,13 +41,13 @@ const schema = [
     dateModified: guide.data.reviewedDate,
     author: {
       "@type": "Organization",
-      name: "Emisar",
-      url: "https://emisar.dev/",
+      name: site.name,
+      url: site.origin + "/",
     },
     publisher: {
       "@type": "Organization",
-      name: "Emisar",
-      url: "https://emisar.dev/",
+      name: site.name,
+      url: site.origin + "/",
     },
     image: site.origin + "/social.png",
   },
@@ -120,7 +120,7 @@ const schema = [
         </p>
         <h1>{guide.data.title}</h1>
         <p class="byline">
-          By <a href="/about/">Emisar</a>
+          By <a href="/about/">{site.name}</a>
           <span>
             Reviewed <time datetime={guide.data.reviewedDate}>{reviewed}</time>
           </span>
@@ -165,7 +165,7 @@ const schema = [
         </ol>
         <div class="citation-box">
           <p id="article-citation">
-            Emisar. “{guide.data.title}.” {site.name}. Reviewed {reviewed}.{" "}
+            {site.name}. “{guide.data.title}.” Reviewed {reviewed}.{" "}
             <a href={canonical}>{canonical}</a>
           </p>
           <button class="quiet-button" type="button" id="copy-citation">

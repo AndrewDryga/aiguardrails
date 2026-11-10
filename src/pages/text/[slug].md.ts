@@ -20,7 +20,7 @@ export function GET({
     `](${site.origin}/$1)`,
   );
   return new Response(
-    `# ${g.data.title}\n\nCanonical: ${site.origin}/guides/${g.id}/\nBy Emisar. Reviewed ${g.data.reviewedDate}.\n\n${g.data.answer}\n\n${body}\n\n## Source documents\n${g.data.sources.map((s) => `- [${s.title}](${s.url})`).join("\n")}\n`,
+    `# ${g.data.title}\n\nCanonical: ${site.origin}/guides/${g.id}/\nBy ${site.name}. Reviewed ${g.data.reviewedDate}.\n\n${g.data.answer}\n\n${body}\n\n## Source documents\n${g.data.sources.map((s) => `- [${s.title}](${s.url})`).join("\n")}\n`,
     { headers: { "Content-Type": "text/plain; charset=utf-8" } },
   );
 }

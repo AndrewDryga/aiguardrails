@@ -5,7 +5,7 @@ export async function GET() {
     (a, b) => a.data.order - b.data.order,
   );
   return new Response(
-    `# ${site.name}\n\n> ${site.description}\n\nPublished by the team behind Emisar. These educational examples do not certify a system as safe or compliant.\n\n## Guides\n${guides.map((g) => `- [${g.data.title}](${site.origin}/text/${g.id}.md): ${g.data.description}`).join("\n")}\n\n## About\n- [Ownership and editorial policy](${site.origin}/about/)\n- [Tools we build](${site.origin}/tools-we-build/)\n`,
+    `# ${site.name}\n\n> ${site.description}\n\nPractical guides with source documents, worked examples and downloadable worksheets. Each guide includes its review date.\n\n## Guides\n${guides.map((g) => `- [${g.data.title}](${site.origin}/text/${g.id}.md): ${g.data.description}`).join("\n")}\n\n## Tools and resources\n- [${site.toolLabel}](${site.origin}/tools/${site.tool}/)\n- [Worksheets and examples](${site.origin}/resources/)\n\n## About\n- [Editorial policy](${site.origin}/about/)\n`,
     { headers: { "Content-Type": "text/plain" } },
   );
 }
