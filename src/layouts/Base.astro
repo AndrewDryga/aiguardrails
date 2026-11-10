@@ -5,6 +5,7 @@ import "@fontsource/ibm-plex-sans/600.css";
 import "@fontsource/ibm-plex-mono/400.css";
 import "@fontsource/instrument-serif/400.css";
 import "../styles/global.css";
+import "../styles/editorial.css";
 import { site } from "../site";
 interface Props {
   title: string;
@@ -13,6 +14,8 @@ interface Props {
   noindex?: boolean;
 }
 const { title, description, schema = [], noindex = false } = Astro.props;
+const active = (prefix: string) =>
+  Astro.url.pathname.startsWith(prefix) ? ("page" as const) : undefined;
 const canonical = new URL(Astro.url.pathname, site.origin).href;
 const entities = [
   {
@@ -92,12 +95,18 @@ const entities = [
         {site.name}
       </a>
       <nav aria-label="Main navigation">
-        <a href="/guides/">Guides</a>
-        <a href={"/tools/" + site.tool + "/"}>
+        <a href="/guides/" aria-current={active("/guides/")}>
+          Guides
+        </a>
+        <a href={"/tools/" + site.tool + "/"} aria-current={active("/tools/")}>
           {site.theme === "guardrails" ? "Policy lab" : "Decision tool"}
         </a>
-        <a href="/resources/">Resources</a>
-        <a href="/about/">About</a>
+        <a href="/resources/" aria-current={active("/resources/")}>
+          Resources
+        </a>
+        <a href="/about/" aria-current={active("/about/")}>
+          About
+        </a>
       </nav>
     </header>
     <main id="main">

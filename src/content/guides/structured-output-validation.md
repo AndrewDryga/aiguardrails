@@ -1,7 +1,7 @@
 ---
 title: "Structured output validation for AI applications"
 description: "Validate generated JSON before using it, then check the business rules and permissions a schema cannot decide."
-category: Build
+category: "Implementation"
 primaryKeyword: "structured output validation"
 relatedKeywords:
   - "LLM JSON validation"
@@ -17,9 +17,8 @@ sources:
     url: "https://json-schema.org/understanding-json-schema/reference/type"
   - title: "MCP tools specification"
     url: "https://modelcontextprotocol.io/specification/latest/server/tools"
+answer: "Structured output validation checks whether a model's response follows a data contract before your application uses it. Valid JSON is only the first check. You also need the expected fields, allowed values and application rules."
 ---
-
-Structured output validation checks whether a model's response follows a data contract before your application uses it. Valid JSON is only the first check. You also need the expected fields, allowed values and application rules.
 
 For example, a model may return a syntactically valid object requesting a restart of the wrong service. A schema can reject an unknown operation or missing service name. Permission to restart that service requires a separate decision against trusted application state.
 
@@ -58,7 +57,7 @@ The reason field is explanatory text. Do not interpret it as a second command ch
 
 First, parse the response using a JSON parser with appropriate input-size limits. Reject malformed or oversized input. Then validate against the schema version your application expects.
 
-Next, apply semantic rules. Is the service available in this environment? Is the requested time range meaningful? Does a selected record belong to the current account? Finally, check permission for any read or write the application will perform.
+Next, apply semantic rules. Is the service available in this environment? Is the requested time range meaningful? Does a selected record belong to the current account? Finally, [check permission at the tool boundary](/guides/tool-calling-guardrails/) for any read or write the application will perform.
 
 | Response                    | Schema result                      | Remaining question                      |
 | --------------------------- | ---------------------------------- | --------------------------------------- |
@@ -81,7 +80,7 @@ When changing a schema, consider queued requests and stored results. An older re
 
 A validation failure can be sent back to the model as a bounded correction request. For example, explain that the operation must be one of the supported values and ask for a replacement object. Validate the replacement from the start.
 
-Limit retries. If the model keeps producing an invalid request, return an error or ask the user for clarification. Do not silently change an unknown service name to the nearest known service and then execute against it.
+Limit retries as part of the [LLM guardrail recovery path](/guides/llm-guardrails/). If the model keeps producing an invalid request, return an error or ask the user for clarification. Do not silently change an unknown service name to the nearest known service and then execute against it.
 
 Automatic repair is particularly risky for actions. Adding a missing environment or changing a destination may turn an incomplete request into a different request. Require a fresh policy decision and, when applicable, approval for the final values.
 

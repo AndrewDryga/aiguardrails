@@ -1,7 +1,7 @@
 ---
 title: "PII redaction in AI applications"
 description: "Place personal-data redaction before disclosure, test the entities your application handles and inspect tool and logging paths separately."
-category: Build
+category: "Implementation"
 primaryKeyword: "pii redaction"
 relatedKeywords:
   - "PII redaction LLM"
@@ -19,15 +19,14 @@ sources:
     url: "https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-sensitive-filters.html"
   - title: "OWASP logging cheat sheet"
     url: "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html"
+answer: "PII redaction removes or replaces personally identifiable information in data an application processes. In an AI workflow, that might mean masking email addresses before sending a support transcript to a model, or removing personal details before publishing a generated summary."
 ---
-
-PII redaction removes or replaces personally identifiable information in data an application processes. In an AI workflow, that might mean masking email addresses before sending a support transcript to a model, or removing personal details before publishing a generated summary.
 
 Choose the boundary first. If the requirement is that a model provider must not receive an email address, redacting the final answer is too late. If the model is permitted to process the address but a shared report is not, place a separate check before that report is stored or sent.
 
 ## Decide which information the task needs
 
-Start with the fields your application already knows. A structured customer record may contain a name, email address and order status. If the model needs only the order status, omit the other fields before composing the prompt. Detection is unnecessary for information you can exclude directly.
+Start with the fields your application already knows. A structured customer record may contain a name, email address and order status. If the model needs only the order status, omit the other fields before composing the prompt. Detection is unnecessary for information you can exclude directly. For retrieved documents, [RAG access controls](/guides/rag-security/) decide which content should reach the model at all.
 
 Free text needs more care. A support message may contain a phone number, an address or a personal detail that no predefined detector recognizes. Define the entities you want to detect and the contexts where they occur.
 
@@ -66,7 +65,7 @@ Also include ordinary text that can resemble PII. A product code might look like
 
 [Presidio warns that automated detection cannot guarantee finding all sensitive information](https://presidio.dataprivacystack.org/). Keep data minimization and access control alongside redaction. For a high-impact disclosure path, consider whether uncertain results should be held for review.
 
-Test the downstream task too. A redactor can pass its detection tests while making the generated summary confusing or factually incomplete. Review whether temporary labels remain consistent and whether the model invents replacements for removed information.
+Test the downstream task too, alongside the [miss and false-block measures](/guides/ai-guardrails-testing/). A redactor can pass its detection tests while making the generated summary confusing or factually incomplete. Review whether temporary labels remain consistent and whether the model invents replacements for removed information.
 
 ## Retain useful evidence without retaining the secret
 

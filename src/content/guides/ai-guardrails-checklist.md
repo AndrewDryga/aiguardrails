@@ -1,7 +1,7 @@
 ---
 title: "An AI guardrails checklist for release review"
 description: "Use an evidence-based checklist to review data access, outputs, tool permissions, failure handling and ownership before releasing an AI workflow."
-category: Test
+category: "Testing & tools"
 primaryKeyword: "ai guardrails checklist"
 relatedKeywords:
   - "AI guardrails implementation"
@@ -18,15 +18,14 @@ sources:
     url: "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html"
   - title: "OWASP logging cheat sheet"
     url: "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html"
+answer: "Use this AI guardrails checklist to review one workflow before release. Name the workflow and the version under review. For each item, record evidence, an owner and a result: pass, fail, not tested or not applicable. A checked box without evidence is difficult for the next person to verify."
 ---
-
-Use this AI guardrails checklist to review one workflow before release. Name the workflow and the version under review. For each item, record evidence, an owner and a result: pass, fail, not tested or not applicable. A checked box without evidence is difficult for the next person to verify.
 
 This is a practical release worksheet. It does not certify security or replace a review of the application's particular risks. A public writing assistant and an agent that can change production systems need different controls.
 
 ## Describe what the workflow can reach
 
-Record the model, data sources, tool services and output destinations. Include background jobs, stored memory and logs. Mark where data or instructions arrive from people or systems you do not control.
+Use the [LLM security map](/guides/llm-security/) to record the model, data sources, tool services and output destinations. Include background jobs, stored memory and logs. Mark where data or instructions arrive from people or systems you do not control.
 
 Record these workflow details:
 
@@ -86,6 +85,6 @@ Use a small record that the next reviewer can reproduce:
 | Owner     | Person responsible for the release decision       |
 | Follow-up | Trigger for the next review                       |
 
-Define release conditions before looking at the results. A failed authorization test should not disappear into an average score for helpful answers.
+Define release conditions before looking at the [guardrail test results](/guides/ai-guardrails-testing/). A failed authorization test should not disappear into an average score for helpful answers.
 
 Review again when the workflow gains a data source, tool, permission or output destination. Keep previous records so a later incident can be traced to the configuration that actually ran, rather than the checklist someone most recently edited.

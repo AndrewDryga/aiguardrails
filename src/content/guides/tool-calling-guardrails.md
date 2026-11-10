@@ -1,7 +1,7 @@
 ---
 title: "Tool calling guardrails that hold at execution time"
 description: "Validate tool arguments, check trusted permissions and bind approvals before executing an AI agent's proposed operation."
-category: Build
+category: "Implementation"
 primaryKeyword: "tool calling guardrails"
 relatedKeywords:
   - "AI tool calling security"
@@ -22,9 +22,8 @@ sources:
     url: "https://json-schema.org/understanding-json-schema/reference/object"
   - title: "OWASP authorization cheat sheet"
     url: "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html"
+answer: "A tool call is a request to run application code. Before executing it, check that the tool exists, the arguments are valid, the caller has permission and any required approval covers this exact request. A model's confidence or explanation does not establish any of those facts."
 ---
-
-A tool call is a request to run application code. Before executing it, check that the tool exists, the arguments are valid, the caller has permission and any required approval covers this exact request. A model's confidence or explanation does not establish any of those facts.
 
 These checks belong in the tool service or execution path. Hiding a tool from the model's menu can reduce mistakes, but an attacker or buggy client may still call the endpoint directly.
 
@@ -46,7 +45,7 @@ The following is an illustrative JSON Schema for a small status tool. It is a sc
       "additionalProperties": false
     }
 
-[JSON Schema's object rules](https://json-schema.org/understanding-json-schema/reference/object) distinguish declaring properties from requiring them, and allow you to reject additional properties. Validate requests on the server even if the model provider also constrains generation.
+[JSON Schema's object rules](https://json-schema.org/understanding-json-schema/reference/object) distinguish declaring properties from requiring them, and allow you to reject additional properties. Validate requests on the server even if the model provider also constrains generation. The [structured output guide](/guides/structured-output-validation/) covers structural and semantic checks separately.
 
 The schema says which service names are structurally acceptable. It does not decide whether this caller may inspect the billing service on this host. That check needs trusted identity and resource information.
 
@@ -72,7 +71,7 @@ A network timeout after dispatch does not tell the client whether the operation 
 
 Where the underlying operation supports it, use an idempotency mechanism that binds one request identifier to one authorized action. Reusing that identifier with different arguments should be rejected. Otherwise, inspect the recorded run state before deciding whether another execution is safe.
 
-For example, a ticket-creation tool can return the existing ticket for a retried request. A service restart may require checking the original run's result. Give the agent an explicit unknown-outcome state instead of encouraging it to retry until it sees success.
+For example, a ticket-creation tool can return the existing ticket for a retried request. A service restart may require checking the original run's result. Give the agent an explicit unknown-outcome state instead of encouraging it to retry until it sees success. The [fail-closed guide](/guides/fail-closed-guardrails/) explains why a pre-dispatch failure and a lost execution result need different recovery.
 
 ## Check the result before using it again
 

@@ -1,7 +1,7 @@
 ---
 title: "Fail-closed guardrails without accidental bypasses"
 description: "Define how protected actions stop when guardrail decisions are missing, stale or unusable, and plan recovery without granting wider permission."
-category: Build
+category: "Implementation"
 primaryKeyword: "fail closed guardrails"
 relatedKeywords:
   - "fail closed AI"
@@ -18,9 +18,8 @@ sources:
     url: "https://cheatsheetseries.owasp.org/cheatsheets/AI_Agent_Security_Cheat_Sheet.html"
   - title: "OWASP logging cheat sheet"
     url: "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html"
+answer: "A fail-closed guardrail prevents a protected operation when it cannot establish permission to proceed. A timeout, malformed policy response or expired approval leaves the operation stopped. The application must distinguish that missing decision from an explicit allow."
 ---
-
-A fail-closed guardrail prevents a protected operation when it cannot establish permission to proceed. A timeout, malformed policy response or expired approval leaves the operation stopped. The application must distinguish that missing decision from an explicit allow.
 
 Apply this rule to the boundary you are protecting. If a service restart requires authorization, an authorization outage should not trigger the restart. The application may still display previously available information or explain that the action is waiting, provided those paths have their own valid access rules.
 
@@ -43,7 +42,7 @@ A detector's confidence score also needs an explicit interpretation. Do not let 
 
 Review exception handlers around the guardrail call. A catch block that logs the error and continues can bypass a policy during an outage. So can a fallback model path that forgets to invoke the same check.
 
-Check queues and caches. A request approved yesterday may be inappropriate today because its target changed or the approver's authority expired. Record what the approval covered and how long it remains usable. Recheck the required state before dispatch.
+Check queues and caches. A request approved yesterday may be inappropriate today because its target changed or the approver's authority expired. Record what the approval covered and how long it remains usable, following the [tool approval contract](/guides/tool-calling-guardrails/). Recheck the required state before dispatch.
 
 A cached decision needs a defined scope and expiry. Reusing an allow from one resource for a different resource is an authorization defect, even if caching improves response time.
 
@@ -67,7 +66,7 @@ The [OWASP agent security guidance](https://cheatsheetseries.owasp.org/cheatshee
 
 ## Test failure with evidence from the protected system
 
-In a test environment, make the policy dependency unavailable and verify that the protected action count stays unchanged. Return an unknown decision value. Expire approval while the request waits in a queue. Restart the application between approval and execution.
+In a test environment, make the policy dependency unavailable and verify that the protected action count stays unchanged. Return an unknown decision value. Include these failures in the [guardrail regression suite](/guides/ai-guardrails-testing/). Expire approval while the request waits in a queue. Restart the application between approval and execution.
 
 Check the resulting event trail. It should identify the request, decision state and relevant policy version without copying credentials or sensitive request bodies. [OWASP's logging guidance](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html) provides useful boundaries for what to record and what to exclude.
 

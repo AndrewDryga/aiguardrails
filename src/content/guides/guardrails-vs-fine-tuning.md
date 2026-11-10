@@ -1,7 +1,7 @@
 ---
 title: "Guardrails vs fine-tuning: which problem are you solving?"
 description: "Choose between runtime checks and model training by separating task-quality problems from permissions and application rules."
-category: Choose
+category: "Testing & tools"
 primaryKeyword: "guardrails vs fine tuning"
 relatedKeywords:
   - "AI guardrails vs fine tuning"
@@ -18,9 +18,8 @@ sources:
     url: "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/capabilities/configure-safety-filters"
   - title: "OWASP authorization cheat sheet"
     url: "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html"
+answer: "Guardrails check a request, result or action while an application runs. Fine-tuning changes a model using training examples. You can use both, but they solve different parts of an application problem."
 ---
-
-Guardrails check a request, result or action while an application runs. Fine-tuning changes a model using training examples. You can use both, but they solve different parts of an application problem.
 
 If a model repeatedly assigns the wrong support category, better instructions or fine-tuning may improve its classification. If a user must never read another customer's ticket, the application needs an access check against current permissions. Training examples cannot tell the model which account owns a ticket at the moment of the request.
 
@@ -55,7 +54,7 @@ Permissions, account membership and approval state can change while a model stay
 
 [OWASP's authorization guidance](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html) recommends validating permissions for every request. That applies whether the request came from a base model, a tuned model or ordinary application code.
 
-Other requirements can also be enforced directly. If a field accepts only five values, validate that set. If a payment requires an authorized approver, inspect the approval record. Asking the model to remember these rules can improve its proposals, but the service still needs to enforce them.
+Other requirements can also be enforced directly. If a field accepts only five values, [validate that set in the output contract](/guides/structured-output-validation/). If a payment requires an authorized approver, inspect the approval record. Asking the model to remember these rules can improve its proposals, but the service still needs to enforce them.
 
 Google's [content filter documentation](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/capabilities/configure-safety-filters) distinguishes filtering outputs from changing model behavior. This is useful when diagnosing a refusal: the model and the surrounding filter can each affect what the user receives.
 
@@ -63,7 +62,7 @@ Google's [content filter documentation](https://docs.cloud.google.com/gemini-ent
 
 Evaluate four configurations if the decision justifies the work: the base model, the tuned model, and each with the intended runtime checks. Keep the task inputs and policy requirements consistent.
 
-Record task quality, incorrect blocking, guardrail misses and latency separately. A tuned model that makes fewer malformed proposals may reduce validation failures. That improvement should not persuade you to remove validation for the cases it still gets wrong.
+Record task quality, incorrect blocking, guardrail misses and latency separately using [explicit test denominators](/guides/ai-guardrails-testing/). A tuned model that makes fewer malformed proposals may reduce validation failures. That improvement should not persuade you to remove validation for the cases it still gets wrong.
 
 Use an isolated environment for action tests. If a model proposes an unauthorized write, record the proposal and confirm the execution service rejects it. This lets you examine model quality without granting the model extra authority during evaluation.
 

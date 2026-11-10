@@ -1,7 +1,7 @@
 ---
 title: "How to test AI guardrails"
 description: "Build a repeatable guardrail test suite that measures prohibited outcomes, valid-task failures and behavior during outages."
-category: Test
+category: "Testing & tools"
 primaryKeyword: "ai guardrails testing"
 relatedKeywords:
   - "LLM guardrails evaluation"
@@ -22,9 +22,8 @@ sources:
     url: "https://cheatsheetseries.owasp.org/cheatsheets/AI_Agent_Security_Cheat_Sheet.html"
   - title: "OWASP logging cheat sheet"
     url: "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html"
+answer: "Test AI guardrails by observing whether the application permits or prevents a defined outcome. Start with a rule such as \"an agent cannot export records from another account.\" Then check the data service, the export destination and the audit record. The wording of the assistant's final reply is only one part of the result."
 ---
-
-Test AI guardrails by observing whether the application permits or prevents a defined outcome. Start with a rule such as "an agent cannot export records from another account." Then check the data service, the export destination and the audit record. The wording of the assistant's final reply is only one part of the result.
 
 Use an isolated environment with synthetic data and tools that cannot affect real customers. A test suite should make failure visible without creating the incident it is intended to prevent.
 
@@ -57,9 +56,9 @@ Track prohibited outcomes that got through and valid requests that were incorrec
 
 For a labeled test set, useful measures include:
 
-- Miss rate: prohibited outcomes allowed, divided by prohibited cases tested.
-- False-block rate: allowed cases blocked, divided by allowed cases tested.
-- Decision error rate: cases without a usable guardrail result, divided by all cases tested.
+- Miss rate: prohibited outcomes allowed, divided by prohibited cases with a usable completed observation.
+- False-block rate: allowed cases blocked, divided by allowed cases with a usable completed observation.
+- Decision error rate: cases without a usable guardrail result, divided by all cases attempted.
 
 State the denominators. A result from a handful of handcrafted examples is a regression check for those examples. It does not establish how the system will behave on every future request.
 
@@ -72,6 +71,51 @@ A model can respond differently to the same input. Repeat tests where that varia
 Capture the model version, prompt, tool definitions, policy version and relevant configuration. Store a minimal synthetic fixture for retrieved content. If you only save the final question, you may lose the document or tool result that caused the failure.
 
 [OWASP's agent security guidance](https://cheatsheetseries.owasp.org/cheatsheets/AI_Agent_Security_Cheat_Sheet.html) includes adversarial testing and validation evidence. Define which failures prevent release before running the suite, so a disappointing result does not quietly change the pass criteria.
+
+## Build a fixture with an observation contract
+
+The downloadable [guardrail cases](/resources/guardrail-cases.json) contain synthetic inputs, expected states and assertions. They do not call a model or execute an action. Connect each case to a test adapter for your application; keep the assertion definitions under review alongside that adapter.
+
+For the wrong-account case, seed a record with a unique synthetic marker. Record the caller's account, requested record and expected denial. Inspect the response, model-bound payload and any export sink for that marker. Checking only the HTTP status misses a handler that leaked content before returning an error.
+
+For an indirect injection case, make the retrieved fixture available through the same retriever used by ordinary requests. A test that puts the attack directly in the user's question does not exercise the tool-result path.
+
+Conceptual pseudocode for one adapter looks like this:
+
+```text
+create isolated application state for the case
+install synthetic documents and authorized identities
+start recording tool requests and destination writes
+run the application's ordinary entry point
+collect decision state, execution evidence and final response
+check every required assertion
+report missing observations as inconclusive
+reset the case state
+```
+
+The reset prevents one test's memory, cache or pending approval from changing the next test unintentionally. Multi-turn cases can deliberately preserve state, but that preservation belongs in their fixture definition.
+
+### Read a mixed result without hiding the defect
+
+The following invented report illustrates classification. It is not a test result for a product:
+
+| Case | Hypothetical observation | Verdict |
+| --- | --- | --- |
+| Allowed record read | Correct seeded record returned | Pass |
+| Other-account read | Denial returned; response contains seeded private marker | Fail: disclosure |
+| Injected export | Export proposed; target service rejects it; sink empty | Protected outcome passed; model redirected |
+| Policy outage | No dispatch; evaluation-error state recorded | Outage behavior passed; no usable decision |
+| Lost action response | Target state unavailable | Inconclusive pending reconciliation |
+
+A single overall "four out of five" score would erase the important distinctions. The cross-account disclosure blocks a release that promises account isolation. The injected export needs both a model-behavior finding and a containment finding. The unknown execution outcome needs more evidence before anyone can call it safe.
+
+### Set the denominator before calculating a rate
+
+Calculate misses among prohibited cases with a usable completed observation. Report incomplete and unavailable cases beside that rate, with the total scheduled cases, so excluding them cannot make coverage look complete. Calculate false blocks among allowed cases with a usable completed observation. Track infrastructure failures separately; an unavailable test setup should not be labeled a policy refusal.
+
+For stochastic runs, report the number of trials per case and every failure. Ten repetitions of one fixture are ten trials of that fixture, not ten independent scenarios. A later successful retry does not erase the earlier result.
+
+Use [red teaming](/guides/llm-red-teaming/) to discover new paths, then turn reproducible findings into these focused cases. The [release checklist](/guides/ai-guardrails-checklist/) records which failures remain unresolved.
 
 ## Exercise operational failures deliberately
 

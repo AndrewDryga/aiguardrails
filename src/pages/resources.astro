@@ -2,8 +2,35 @@
 import Base from "../layouts/Base.astro";
 import { site } from "../site";
 const guardrails = site.theme === "guardrails";
-const resources = guardrails
+const resources: {
+  title: string;
+  type: string;
+  text: string;
+  href: string;
+  guide?: string;
+}[] = guardrails
   ? [
+      {
+        title: "Synthetic guardrail cases",
+        type: "JSON · test adapter input",
+        text: "Inputs, expected decisions and observations for a small test suite. Supply an adapter for your own application; no test results are invented.",
+        href: "/resources/guardrail-cases.json",
+        guide: "ai-guardrails-testing",
+      },
+      {
+        title: "Detector evaluation sheet",
+        type: "CSV · editable worksheet",
+        text: "Keep detector verdicts, expected labels and incomplete observations together when comparing a threshold.",
+        href: "/resources/detector-evaluation.csv",
+        guide: "prompt-injection-detection",
+      },
+      {
+        title: "Red-team engagement plan",
+        type: "Markdown · editable plan",
+        text: "Define the permitted target, prohibited effects, test conditions, stopping rules and evidence before a red-team exercise.",
+        href: "/resources/red-team-engagement.md",
+        guide: "llm-red-teaming",
+      },
       {
         title: "Guardrail review worksheet",
         type: "Markdown · editable",
@@ -19,13 +46,62 @@ const resources = guardrails
     ]
   : [
       {
+        title: "Agent release review",
+        type: "Markdown · editable worksheet",
+        text: "Record the owner, scope, required evidence, unresolved gaps and decision for one agent release.",
+        href: "/resources/agent-release-review.md",
+        guide: "ai-governance-checklist",
+      },
+      {
+        title: "Detailed agent inventory",
+        type: "CSV · editable worksheet",
+        text: "Connect deployments, identities, permissions, owners and revocation paths. Verify the record against the running configuration.",
+        href: "/resources/agent-inventory-expanded.csv",
+        guide: "ai-agent-inventory",
+      },
+      {
+        title: "Monitoring signal dictionary",
+        type: "CSV · editable definitions",
+        text: "Define each signal’s unit, denominator, owner and response. Choose thresholds from your own operating evidence.",
+        href: "/resources/agent-monitoring-signals.csv",
+        guide: "ai-agent-monitoring",
+      },
+      {
+        title: "Governance tool evaluation",
+        type: "CSV · trial worksheet",
+        text: "Match a required capability to documentation, trial evidence, integration work and the person responsible for it.",
+        href: "/resources/governance-tool-evaluation.csv",
+        guide: "ai-governance-tools",
+      },
+      {
+        title: "Governance capability review",
+        type: "CSV · evidence worksheet",
+        text: "Review capabilities separately, retain failed or missing evidence, and choose the next concrete improvement.",
+        href: "/resources/governance-capability-review.csv",
+        guide: "ai-governance-maturity-model",
+      },
+      {
+        title: "Agent lifecycle review",
+        type: "Markdown · editable worksheet",
+        text: "Carry ownership and evidence through design, approval, deployment, change and retirement.",
+        href: "/resources/agent-lifecycle-review.md",
+        guide: "ai-agent-lifecycle",
+      },
+      {
+        title: "Agent evaluation cases",
+        type: "JSON · test adapter input",
+        text: "Separate useful work, permission, approval, unknown outcomes and interrupted execution in a synthetic evaluation suite.",
+        href: "/resources/agent-evaluation-cases.json",
+        guide: "ai-agent-evaluation",
+      },
+      {
         title: "Agent governance policy",
         type: "Markdown · editable",
         text: "A starting policy covering scope, approval, enforcement, evidence, incidents and expiring exceptions.",
         href: "/downloads/agent-governance-policy.md",
       },
       {
-        title: "Agent inventory",
+        title: "Starter agent inventory",
         type: "CSV · blank template",
         text: "Track each agent’s owner, job, tools, credentials, data access, revocation path and review date.",
         href: "/downloads/agent-inventory.csv",
@@ -50,9 +126,9 @@ const resources = guardrails
   <section class="page-intro wrap">
     <p class="eyebrow">Working resources</p>
     <h1>
-      Take a useful
+      Templates and examples
       <br />
-      starting point
+      you can use
     </h1>
     <p class="lede">
       Download a copy, adapt it to your system and record the evidence behind
@@ -65,9 +141,12 @@ const resources = guardrails
         <p class="eyebrow">{r.type}</p>
         <h2>{r.title}</h2>
         <p>{r.text}</p>
-        <a href={r.href} download>
-          Download ↓
-        </a>
+        <div class="resource-actions">
+          <a href={r.href} download>
+            Download ↓
+          </a>
+          {r.guide && <a href={"/guides/" + r.guide + "/"}>Read the guide ↗</a>}
+        </div>
       </article>
     ))}
   </section>

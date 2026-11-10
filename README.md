@@ -8,7 +8,7 @@ Use Node 26. Run `npm ci`, then `npm run dev`. Run `npm run verify` before a com
 
 ## Content
 
-Guides live in `src/content/guides/`. Their frontmatter owns titles, summaries, source links, related reading, keyword intent and review dates. The content schema validates these fields. Each guide is rendered as crawlable HTML and a downloadable Markdown file. Local, gitignored `research/` contains keyword evidence and page mapping. It is not committed or copied into the public site.
+Guides live in `src/content/guides/`. Their frontmatter owns titles, descriptions, a self-contained `answer`, topic categories, source links, related reading, keyword intent and review dates. The content schema validates these fields. Each guide is rendered as crawlable HTML and a downloadable Markdown file. The opening answer appears once in each format; Markdown links retain their absolute source URLs. Every guide needs contextual links and a matching topic in the library. The build audit checks full-library coverage, incoming links, contents anchors and export fidelity. Local, gitignored `research/` contains keyword evidence and page mapping. It is not committed or copied into the public site.
 
 Technical statements need current primary sources. Keep instructions and examples useful without buying a product. Disclose related products through the shared footer and tools page. Read `ATTRIBUTION.md` for the requested Humanizer and Unslop references.
 
@@ -33,4 +33,6 @@ Official references: [Astro on Pages](https://developers.cloudflare.com/pages/fr
 
 ## Search and measurement
 
-The build emits canonical URLs, social previews, Article and breadcrumb schema, a sitemap and a permissive robots.txt for public material. The text index is a convenience for readers and agents, not a promised ranking factor. There are no analytics scripts or tracking cookies. Verify domains in Search Console/Bing after deployment; track qualified visits, tool use and product activation separately from rankings and AI citations.
+The build emits canonical URLs, social previews, Article and breadcrumb schema, a sitemap and a permissive robots.txt for public material. The library fetches a static full-text search index when a reader starts searching, with a titles-and-summaries fallback if that request fails. Topic groups and all guide links are present in the HTML without JavaScript. The search JSON is marked noindex; guide pages remain indexable.
+
+The text index is a convenience for readers and agents, not a promised ranking factor. There are no analytics scripts or tracking cookies. Verify domains in Search Console/Bing after deployment; track qualified visits, tool use and product activation separately from rankings and AI citations.

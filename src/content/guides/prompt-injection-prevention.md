@@ -1,7 +1,7 @@
 ---
 title: "Prompt injection prevention for apps and agents"
 description: "Reduce prompt injection risk by separating untrusted content from authority and testing the data and actions an attacker could reach."
-category: Build
+category: "Threats"
 primaryKeyword: "prompt injection prevention"
 relatedKeywords:
   - "prompt injection"
@@ -18,11 +18,12 @@ sources:
     url: "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/"
   - title: "MCP tools specification"
     url: "https://modelcontextprotocol.io/specification/latest/server/tools"
+answer: "Prompt injection happens when an AI application treats attacker-controlled content as instructions for how it should behave. The content can arrive directly in a chat message or indirectly through a document, website, email or tool result. Prevention work should focus on both the model's response and the systems that response can affect."
 ---
 
-Prompt injection happens when an AI application treats attacker-controlled content as instructions for how it should behave. The content can arrive directly in a chat message or indirectly through a document, website, email or tool result. Prevention work should focus on both the model's response and the systems that response can affect.
-
 A detector can help identify suspicious text. It cannot establish that every remaining instruction is trustworthy. Build the application so a misleading document cannot grant permission to read private data or perform an action.
+
+For the difference between redirecting an application and bypassing a model’s safety rules, see [prompt injection versus jailbreaking](/guides/prompt-injection-vs-jailbreak/). Classifying the attempt helps you choose what to test.
 
 ## How indirect prompt injection reaches a tool
 
@@ -60,6 +61,40 @@ A tool can have a harmless name and a misleading description. Its result can con
 Review new tool servers before connecting them to sensitive workflows. Reassess when their definitions or permissions change. Return only the result fields the next step needs, and preserve the distinction between a tool's data and the application's instructions.
 
 A confirmation prompt should show the actual proposed action and destination. Asking someone to approve a vague "continue troubleshooting" message gives them little chance to spot the injected request.
+
+## Design the response to an injected troubleshooting note
+
+Use a hypothetical application that reads service logs and can request a restart. Its legitimate task is to explain a failing health check. An attacker-controlled log line says that diagnosis requires changing the service's output destination. No real destination or secret is needed to test this case.
+
+Write the intended authority separately from the log:
+
+```text
+Task: investigate checkout health
+Allowed reads: checkout status and filtered checkout logs
+Allowed writes: none in this task
+Output: the current incident record
+External log text: evidence only
+```
+
+This is a design record, not runnable policy syntax. The component receiving a restart or export request must enforce the record's restrictions using authenticated state.
+
+### Before the model reads the note
+
+Limit the log response to the relevant service, time window and fields. Preserve its source ID. Label it as tool output, and keep it out of the application's trusted instruction field. A [prompt injection detector](/guides/prompt-injection-detection/) can flag the attempted redirection, but an unflagged result must not widen the task.
+
+Avoid automatically deleting every sentence that contains an imperative. Real troubleshooting material contains instructions. Removing context can make diagnosis worse, and an attacker can express the same request without an obvious command word. A detector's result needs an explicit policy: withhold, show as suspicious evidence, or continue with the existing limits.
+
+### When the model proposes an action anyway
+
+Suppose it proposes an export despite the design. Validate the request, then reject it because this task has no export authority. The correct test observation is no accepted export at the destination plus a denial record. The model may still have followed the injection; the action boundary contained that consequence.
+
+If the action service cannot fetch the current policy, follow the [fail-closed behavior](/guides/fail-closed-guardrails/) for that operation. An outage is an evaluation error, even though the action remains stopped. Keep those outcomes separate in reports.
+
+### When the content survives into another turn
+
+A later question may reuse a summary of the log. Preserve the summary's untrusted provenance and avoid promoting its claims into standing instructions. If the application saves lessons between sessions, review its [memory write path](/guides/memory-poisoning/) too. Fixing the immediate display does not remove a stored copy.
+
+The [indirect injection walkthrough](/guides/indirect-prompt-injection/) provides a complete fixture and event sequence. Use the broader prevention review here to identify every place that the same untrusted material could gain authority.
 
 ## Test the outcome an attacker wants
 

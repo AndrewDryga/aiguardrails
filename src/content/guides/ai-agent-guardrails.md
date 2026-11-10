@@ -1,7 +1,7 @@
 ---
 title: "AI agent guardrails for work with real consequences"
 description: "Control an agent's tools, targets and approvals so a mistaken plan does not automatically become an authorized action."
-category: Build
+category: "Implementation"
 primaryKeyword: "ai agent guardrails"
 relatedKeywords:
   - "guardrails for ai agents"
@@ -18,9 +18,8 @@ sources:
     url: "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/"
   - title: "OWASP authorization cheat sheet"
     url: "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html"
+answer: "AI agent guardrails control the actions an agent can take while working toward a goal. A useful policy identifies the permitted operation, the resource it applies to, the caller's authority and any required approval. It also limits repeated actions and records what happened."
 ---
-
-AI agent guardrails control the actions an agent can take while working toward a goal. A useful policy identifies the permitted operation, the resource it applies to, the caller's authority and any required approval. It also limits repeated actions and records what happened.
 
 An agent that diagnoses a slow service may need to inspect process status and recent logs. Restarting the service is a separate permission. Deleting a database volume is another. Giving the agent a broad administrator credential because all three operations happen on the same host makes those differences hard to enforce.
 
@@ -41,7 +40,7 @@ These are design examples, not universal risk ratings. Reading a public health e
 
 ## Enforce permission where the action runs
 
-The application should check the authenticated caller and target before dispatching a tool. The service performing the operation should also reject calls outside its permitted scope. This prevents a direct request from bypassing a check that exists only in the agent interface.
+The [tool-calling boundary](/guides/tool-calling-guardrails/) should check the authenticated caller and target before dispatching a tool. The service performing the operation should also reject calls outside its permitted scope. This prevents a direct request from bypassing a check that exists only in the agent interface.
 
 Use trusted application state for account membership and environment scope. Model-generated arguments can identify a requested target, but they cannot prove ownership of it. [OWASP's authorization guidance](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html) recommends permission checks on every request, including requests from alternate entry points.
 
@@ -67,4 +66,4 @@ Cancellation needs a defined effect. Prevent future dispatches immediately, then
 
 In an engineering workflow, a local coding agent and a remote production action need different controls. [co:op](https://coop.dryga.com/) runs coding agents in a project sandbox. [Emisar](https://emisar.dev/) provides declared remote infrastructure actions with policy, approval and audit. [Ryker](https://ryker.emisar.dev/) is an engineering and on-call teammate that uses those components for its work.
 
-A project sandbox permits changes within its configured scope. Remote action controls allow the effects of an authorized operation. Review both scopes, and test that the agent cannot turn a failure in one part of the workflow into wider authority elsewhere.
+An [agent sandbox](/guides/ai-agent-sandbox/) permits changes within its configured scope. Remote action controls allow the effects of an authorized operation. Review both scopes, and test that the agent cannot turn a failure in one part of the workflow into wider authority elsewhere.

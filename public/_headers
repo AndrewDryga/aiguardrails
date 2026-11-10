@@ -5,3 +5,7 @@ https://:project.pages.dev/*
 
 https://:version.:project.pages.dev/*
   X-Robots-Tag: noindex
+
+# Search data supports the library interface; the guides are the indexed pages.
+/search-index.json
+  X-Robots-Tag: noindex

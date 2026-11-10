@@ -3,63 +3,270 @@ import Base from "../../layouts/Base.astro";
 import GuideList from "../../components/GuideList.astro";
 import { getCollection } from "astro:content";
 import { site } from "../../site";
+import { topicId } from "../../lib/guide-text";
 const guides = (await getCollection("guides")).sort(
   (a, b) => a.data.order - b.data.order,
 );
+const guardrails = site.theme === "guardrails";
+const topics = guardrails
+  ? [
+      [
+        "Foundations",
+        "Understand the controls",
+        "What guardrails check, where they run and which risks remain.",
+      ],
+      [
+        "Threats",
+        "Trace the failure",
+        "Untrusted documents, persistent memory and instructions that cross a trust boundary.",
+      ],
+      [
+        "Implementation",
+        "Build the boundary",
+        "Retrieval, output, data access and the tools an agent can use.",
+      ],
+      [
+        "Testing & tools",
+        "Check what holds",
+        "Worked cases, red teaming and evidence for choosing a control.",
+      ],
+    ]
+  : [
+      [
+        "Foundations",
+        "Set the direction",
+        "Ownership, frameworks and examples of decisions a team needs to make.",
+      ],
+      [
+        "Access",
+        "Define the authority",
+        "Identities, permissions and the systems an agent may reach.",
+      ],
+      [
+        "Operations",
+        "Keep it accountable",
+        "Inventories, monitoring, audit trails and the full agent lifecycle.",
+      ],
+      [
+        "Reviews & policy",
+        "Review the evidence",
+        "Policies, risk assessments and checks before the next release.",
+      ],
+    ];
 ---
 
 <Base
-  title={"Guides | " + site.name}
+  title={"Guide library | " + site.name}
   description={
-    "Practical " +
-    site.name.toLowerCase() +
-    " guides with examples, checks, source documents and useful limits."
+    guardrails
+      ? "Find practical AI guardrails guides on prompt injection, RAG security, output checks, agent sandboxes and testing. Search the full library by topic or question."
+      : "Find AI agent governance guides on frameworks, identity, permissions, monitoring, evaluation and review. Search the full library by topic or question."
   }
 >
-  <section class="page-intro wrap">
-    <p class="eyebrow">The guide library</p>
-    <h1>
-      Find the next thing
-      <br />
-      you need to know
-    </h1>
-    <p class="lede">
-      Start with the basics, or go straight to the problem in front of you.
-    </p>
-  </section>
-  <section class="wrap library">
-    <div class="search-field">
-      <label for="guide-search">Search the guides</label>
-      <input
-        type="search"
-        id="guide-search"
-        placeholder="Try permissions, testing or tools"
-      />
-      <span id="search-count" aria-live="polite">
-        {guides.length} guides
-      </span>
+  <section class="library-intro wrap">
+    <div>
+      <p class="eyebrow">{site.name} / The library</p>
+      <h1>
+        {guardrails
+          ? "Find the control\nyou need to build."
+          : "Find the decision\nyou need to make."}
+      </h1>
     </div>
-    <GuideList guides={guides} />
-    <p id="no-results" hidden>
-      No guides match that search. Try a shorter phrase, or clear the search to
-      see everything.
+    <div class="library-intro-note">
+      <span class="library-total">{guides.length}</span>
+      <p>
+        practical guides
+        <br />
+        with examples and source documents
+      </p>
+    </div>
+  </section>
+  <noscript>
+    <p class="no-script wrap">
+      Search and topic filters need JavaScript. All guides are listed below,
+      grouped by topic.
     </p>
+  </noscript>
+  <section class="wrap library" aria-label="Guide library">
+    <div class="library-toolbar">
+      <div class="search-field">
+        <label for="guide-search">Search every guide</label>
+        <input
+          type="search"
+          id="guide-search"
+          autocomplete="off"
+          placeholder={
+            guardrails
+              ? "Try retrieval, timeout or injection"
+              : "Try approval, revocation or evidence"
+          }
+          aria-describedby="search-status"
+        />
+        <button type="button" id="clear-search" class="quiet-button" hidden>
+          Clear search
+        </button>
+      </div>
+      <div
+        class="topic-filters"
+        role="group"
+        aria-label="Filter guides by topic"
+      >
+        <button type="button" data-filter="all" aria-pressed="true">
+          All topics <span>{guides.length}</span>
+        </button>
+        {topics.map(([category]) => (
+          <button
+            type="button"
+            data-filter={topicId(category)}
+            aria-pressed="false"
+          >
+            {category}{" "}
+            <span>
+              {guides.filter((g) => g.data.category === category).length}
+            </span>
+          </button>
+        ))}
+      </div>
+      <div class="search-summary">
+        <span id="search-count" aria-live="polite">
+          {guides.length} guides
+        </span>
+        <span id="search-status" role="status"></span>
+      </div>
+    </div>
+    <div class="library-groups">
+      {topics.map(([category, title, description], index) => (
+        <section
+          class="topic-group"
+          id={topicId(category)}
+          data-group={topicId(category)}
+        >
+          <header class="topic-heading">
+            <span class="topic-number" aria-hidden="true">
+              0{index + 1}
+            </span>
+            <div>
+              <p class="eyebrow">{category}</p>
+              <h2>{title}</h2>
+              <p>{description}</p>
+            </div>
+          </header>
+          <GuideList
+            guides={guides.filter((g) => g.data.category === category)}
+          />
+        </section>
+      ))}
+    </div>
+    <div id="no-results" class="empty-search" hidden>
+      <h2>No guide matches yet.</h2>
+      <p>
+        Try a shorter phrase, choose another topic, or return to the complete
+        library.
+      </p>
+      <button type="button" id="reset-search" class="button">
+        Show all guides
+      </button>
+    </div>
   </section>
 </Base>
 <script>
-  const input = document.querySelector<HTMLInputElement>("#guide-search");
+  const input = document.querySelector<HTMLInputElement>("#guide-search")!;
   const rows = [...document.querySelectorAll<HTMLAnchorElement>(".guide-row")];
-  input?.addEventListener("input", () => {
+  const groups = [...document.querySelectorAll<HTMLElement>(".topic-group")];
+  const filters = [
+    ...document.querySelectorAll<HTMLButtonElement>("[data-filter]"),
+  ];
+  const status = document.querySelector<HTMLElement>("#search-status")!;
+  const clear = document.querySelector<HTMLButtonElement>("#clear-search")!;
+  let topic = "all";
+  let content: Map<string, string> | undefined;
+  let loading: Promise<void> | undefined;
+  const fullIndex = () => {
+    if (content) return Promise.resolve();
+    if (loading) return loading;
+    status.textContent = "Loading full-text search…";
+    loading = fetch("/search-index.json")
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Search index unavailable");
+        const records: { id: string; text: string }[] = await response.json();
+        content = new Map(records.map((record) => [record.id, record.text]));
+        status.textContent = "";
+      })
+      .catch(() => {
+        status.textContent =
+          "Full-text search is unavailable. Searching titles and summaries.";
+      })
+      .finally(() => {
+        loading = undefined;
+        apply();
+      });
+    return loading;
+  };
+  function apply() {
     const terms = input.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
     let count = 0;
     for (const row of rows) {
-      row.hidden = !terms.every((term) => row.dataset.search?.includes(term));
+      const body = content?.get(row.dataset.guide || "") || "";
+      const haystack = (row.dataset.search || "") + " " + body.toLowerCase();
+      row.hidden =
+        (topic !== "all" && row.dataset.topic !== topic) ||
+        !terms.every((term) => haystack.includes(term));
       if (!row.hidden) count++;
+      const excerpt = row.querySelector<HTMLElement>(".search-excerpt");
+      if (excerpt) {
+        const offset = terms.length ? body.toLowerCase().indexOf(terms[0]) : -1;
+        excerpt.hidden = row.hidden || offset < 0;
+        excerpt.textContent =
+          offset < 0
+            ? ""
+            : (offset > 55 ? "…" : "") +
+              body.slice(Math.max(0, offset - 55), offset + 160) +
+              (offset + 160 < body.length ? "…" : "");
+      }
     }
-    const counter = document.querySelector("#search-count");
-    if (counter)
-      counter.textContent = `${count} guide${count === 1 ? "" : "s"}`;
-    const empty = document.querySelector<HTMLElement>("#no-results");
-    if (empty) empty.hidden = count > 0;
+    for (const group of groups)
+      group.hidden = ![
+        ...group.querySelectorAll<HTMLAnchorElement>(".guide-row"),
+      ].some((row) => !row.hidden);
+    for (const button of filters)
+      button.setAttribute(
+        "aria-pressed",
+        String(button.dataset.filter === topic),
+      );
+    document.querySelector("#search-count")!.textContent =
+      `${count} guide${count === 1 ? "" : "s"}`;
+    document.querySelector<HTMLElement>("#no-results")!.hidden = count > 0;
+    clear.hidden = !input.value;
+  }
+  input.addEventListener("input", () => {
+    apply();
+    if (input.value.trim()) void fullIndex();
   });
+  input.addEventListener(
+    "focus",
+    () => {
+      void fullIndex();
+    },
+    { once: true },
+  );
+  for (const button of filters)
+    button.addEventListener("click", () => {
+      topic = button.dataset.filter || "all";
+      apply();
+    });
+  clear.addEventListener("click", () => {
+    input.value = "";
+    apply();
+    input.focus();
+  });
+  document.querySelector("#reset-search")!.addEventListener("click", () => {
+    topic = "all";
+    input.value = "";
+    apply();
+    input.focus();
+  });
+  const requestedTopic = new URLSearchParams(location.search).get("topic");
+  if (filters.some((button) => button.dataset.filter === requestedTopic))
+    topic = requestedTopic!;
+  apply();
 </script>

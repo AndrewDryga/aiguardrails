@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from "astro:content";
+import { readingMinutes, topicId } from "../lib/guide-text";
 interface Props {
   guides: CollectionEntry<"guides">[];
   compact?: boolean;
@@ -12,9 +13,12 @@ const { guides, compact = false } = Astro.props;
     <a
       class="guide-row"
       href={"/guides/" + guide.id + "/"}
+      data-guide={guide.id}
+      data-topic={topicId(guide.data.category)}
       data-search={[
         guide.data.title,
         guide.data.description,
+        guide.data.answer,
         guide.data.category,
         guide.data.primaryKeyword,
         ...guide.data.relatedKeywords,
@@ -22,11 +26,18 @@ const { guides, compact = false } = Astro.props;
         .join(" ")
         .toLowerCase()}
     >
-      <span class="guide-number">{String(index + 1).padStart(2, "0")}</span>
-      <div>
-        <span class="category">{guide.data.category}</span>
+      <span class="guide-number" aria-hidden="true">
+        {String(index + 1).padStart(2, "0")}
+      </span>
+      <div class="guide-row-body">
+        <span class="guide-meta">
+          {guide.data.category}
+          <span aria-hidden="true"> / </span>
+          {readingMinutes(guide.body || "", guide.data.answer)} min read
+        </span>
         <h3>{guide.data.title}</h3>
         {!compact && <p>{guide.data.description}</p>}
+        {!compact && <p class="search-excerpt" hidden></p>}
       </div>
       <span class="row-arrow" aria-hidden="true">
         ↗

@@ -1,7 +1,7 @@
 ---
 title: "What are AI guardrails?"
 description: "Learn where AI guardrails check content, data and actions, and how to choose controls for a real application."
-category: Basics
+category: "Foundations"
 primaryKeyword: "what are ai guardrails"
 relatedKeywords:
   - "ai guardrails"
@@ -17,9 +17,8 @@ sources:
     url: "https://docs.nvidia.com/nemo/guardrails/about-nemo-guardrails-library/overview"
   - title: "OWASP authorization cheat sheet"
     url: "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html"
+answer: "AI guardrails are checks and restrictions around an AI application. They can reject an unsuitable request, remove sensitive text, validate an answer or prevent an unauthorized action. A useful guardrail has a specific rule, a place where that rule runs, and a defined result when the check fails."
 ---
-
-AI guardrails are checks and restrictions around an AI application. They can reject an unsuitable request, remove sensitive text, validate an answer or prevent an unauthorized action. A useful guardrail has a specific rule, a place where that rule runs, and a defined result when the check fails.
 
 Consider a support assistant that reads help articles and drafts replies. You might require it to cite an article, hide customer email addresses from a shared transcript, and leave refunds to a separate approval process. Each requirement needs its own check. A single "safe" score would tell you little about whether those requirements were met.
 
@@ -36,6 +35,8 @@ Different tools use the word guardrail for different jobs. [Amazon Bedrock Guard
 | Actions       | A refund above the team's limit needs approval        | Before the payment service changes anything |
 
 The rules differ in how they work. A classifier estimates whether text falls into a category. A schema validator checks the structure of data. An authorization service checks whether a caller has permission. Their outputs should remain distinguishable so you can explain a refusal and investigate a mistake.
+
+If you are choosing between changing the model and adding an application check, the [guardrails and fine-tuning comparison](/guides/guardrails-vs-fine-tuning/) explains what each approach can change.
 
 ## Start with the unwanted outcome
 
@@ -60,6 +61,30 @@ Build a small set of normal tasks before adding more filters. Include ordinary w
 Alongside those examples, add specific prohibited outcomes. Try accessing another account, supplying an unknown category, and asking the application to skip an approval. Record what the application actually did. A polite refusal is insufficient evidence if a background tool still performed the action.
 
 Measure each rule separately. A content filter that works well on abusive language says nothing about whether ticket ownership is enforced. When a rule blocks valid work, inspect the example before lowering its threshold across the application.
+
+## Follow a support reply through its controls
+
+Consider this hypothetical request: "Explain why my order was delayed, and send the explanation to my colleague." The assistant has an order lookup, a document search and a message sender. A useful answer requires several decisions that happen at different times.
+
+| Step | Application decision | Evidence to check |
+| --- | --- | --- |
+| Identify the order | Resolve it within the authenticated customer's account | Another account's order is unavailable |
+| Retrieve delivery terms | Select documents this customer may see | Retrieved source IDs and access decision |
+| Draft the explanation | Use the order state and relevant terms | Claims match the selected evidence |
+| Prepare the message | Remove unnecessary personal details | The final outgoing payload |
+| Send | Verify the permitted recipient and any required review | Sender's result and message ID |
+
+Suppose the order tool returns a customer's email address, although the explanation only needs an order state. Remove that field before generation. If the final message includes an address copied from another source, a separate [PII check](/guides/pii-redaction/) can still catch it before sending. Those two controls cover different paths.
+
+Now suppose a retrieved delivery note tells the assistant to send the entire order record elsewhere. That is an [indirect prompt injection](/guides/indirect-prompt-injection/) attempt. The document may help explain a delay; it has no authority to change the recipient. The sending service should obtain the permitted destination from trusted application state and reject the proposed change.
+
+If sending times out after dispatch, the assistant must report an uncertain result and look up the message operation before trying again. A final answer saying "I couldn't send it" would be misleading if the recipient already received it. This is an operational failure that a text filter cannot resolve.
+
+## Choose the next guide by the boundary
+
+For a question-answering application, start with [LLM guardrails](/guides/llm-guardrails/) and its complete answer trace. For document access, use the [RAG security guide](/guides/rag-security/). For an agent with tools, review [action guardrails](/guides/ai-agent-guardrails/) before granting a write capability.
+
+The [examples casebook](/guides/ai-guardrails-examples/) shows individual checks with their expected results. Once the design is concrete, use [guardrail tests](/guides/ai-guardrails-testing/) to collect evidence about both useful work and prohibited outcomes. Keep a control marked untested until its actual integration has been exercised.
 
 ## A small first implementation
 

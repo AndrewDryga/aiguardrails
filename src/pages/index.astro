@@ -3,240 +3,395 @@ import Base from "../layouts/Base.astro";
 import GuideList from "../components/GuideList.astro";
 import { getCollection } from "astro:content";
 import { site } from "../site";
+import { topicId } from "../lib/guide-text";
 const guides = (await getCollection("guides")).sort(
   (a, b) => a.data.order - b.data.order,
 );
 const guardrails = site.theme === "guardrails";
-const featured = guides.filter((g) =>
-  (guardrails
-    ? [
-        "what-are-ai-guardrails",
-        "prompt-injection-prevention",
-        "tool-calling-guardrails",
-        "ai-guardrails-testing",
-      ]
-    : [
-        "what-is-ai-agent-governance",
-        "ai-agent-access-control",
-        "human-in-the-loop-ai",
-        "ai-agent-audit-trail",
-      ]
-  ).includes(g.id),
-);
+const select = (ids: string[]) =>
+  ids
+    .map((id) => guides.find((g) => g.id === id))
+    .filter((g): g is (typeof guides)[number] => Boolean(g));
+const topics = guardrails
+  ? [
+      {
+        category: "Foundations",
+        title: "Understand the layers",
+        text: "Separate model behavior, application checks and authority over real systems.",
+        guides: [
+          "what-are-ai-guardrails",
+          "llm-security",
+          "prompt-injection-vs-jailbreak",
+        ],
+      },
+      {
+        category: "Threats",
+        title: "Follow the untrusted input",
+        text: "Trace an instruction through documents, tool results and persistent memory.",
+        guides: [
+          "indirect-prompt-injection",
+          "prompt-injection-prevention",
+          "memory-poisoning",
+        ],
+      },
+      {
+        category: "Implementation",
+        title: "Put the check where it holds",
+        text: "Validate a response, scope a tool call and limit an agent’s environment.",
+        guides: ["tool-calling-guardrails", "rag-security", "ai-agent-sandbox"],
+      },
+      {
+        category: "Testing & tools",
+        title: "Test the actual outcome",
+        text: "Use failure cases and repeatable evidence to evaluate the controls you chose.",
+        guides: [
+          "ai-guardrails-testing",
+          "llm-red-teaming",
+          "prompt-injection-detection",
+        ],
+      },
+    ]
+  : [
+      {
+        category: "Foundations",
+        title: "Choose the work and its owner",
+        text: "Start with ownership, security and the decisions an agent’s work creates.",
+        guides: [
+          "what-is-ai-agent-governance",
+          "ai-governance-vs-ai-security",
+          "ai-governance-examples",
+        ],
+      },
+      {
+        category: "Access",
+        title: "Define what the agent may do",
+        text: "Connect identity to actions, resources and time limits.",
+        guides: [
+          "ai-agent-access-control",
+          "non-human-identities",
+          "least-privilege-ai-agents",
+        ],
+      },
+      {
+        category: "Operations",
+        title: "Keep track as the system changes",
+        text: "Maintain the inventory, observe actions and prepare to revoke access.",
+        guides: [
+          "ai-agent-inventory",
+          "ai-agent-monitoring",
+          "ai-agent-lifecycle",
+        ],
+      },
+      {
+        category: "Reviews & policy",
+        title: "Make a decision with evidence",
+        text: "Review a release, resolve an exception and record what remains uncertain.",
+        guides: [
+          "ai-agent-governance-framework",
+          "ai-agent-risk-assessment",
+          "ai-governance-checklist",
+        ],
+      },
+    ];
 ---
 
 <Base
   title={
     guardrails
       ? "AI Guardrails: practical guides, tests and examples"
-      : "AI Agent Governance: policies, permissions and practical guides"
+      : "AI Agent Governance: frameworks, access and evidence"
   }
   description={
     guardrails
-      ? "Learn how AI guardrails work. Practical guides to prompt injection, LLM checks, tool permissions and testing, with a policy lab and downloadable examples."
-      : "Build an AI agent governance process with clear permissions, human approvals and audit records. Practical guides, policy templates and a decision-record tool."
+      ? "An engineering field guide to AI guardrails. Learn prompt injection defense, RAG security, output validation, agent sandboxes and testing with worked examples."
+      : "A working handbook for AI agent governance. Use frameworks, access policies, monitoring guides and practical review templates to govern an agent’s actions."
   }
 >
-  <section class="hero wrap">
-    <div>
-      <p class="eyebrow">
-        {guardrails
-          ? "A field guide for people building with AI"
-          : "A handbook for teams putting agents to work"}
-      </p>
-      <h1>{site.headline}</h1>
-      <p class="lede">{site.description}</p>
-      <div class="actions">
-        <a class="button" href={"/guides/" + site.firstGuide + "/"}>
-          Start with the basics
-        </a>
-        <a class="text-link" href={"/tools/" + site.tool + "/"}>
-          {site.toolLabel} ↗
-        </a>
-      </div>
-    </div>
-    {guardrails ? (
-      <div
-        class="guardrails-visual"
-        aria-label="Example policy decision for a service restart"
-      >
-        <div class="visual-head">
-          <span>Example / action boundary</span>
-          <span>Before execution</span>
-        </div>
-        <div class="request">
-          <p>Requested action</p>
-          <code>restart_service("api-prod")</code>
-        </div>
-        <div class="check-lines">
-          <div class="check-line">
-            <span>1</span>Is this agent allowed on this host?
-          </div>
-          <div class="check-line">
-            <span>2</span>Is the action in its allowed set?
-          </div>
-          <div class="check-line">
-            <span>3</span>Does this change need a person?
-          </div>
-        </div>
-        <div class="decision">
-          <strong>Wait for approval</strong>
-          <small>Action has not run</small>
-        </div>
-        <p class="visual-caption">
-          An example policy, not a live infrastructure request
-        </p>
-      </div>
-    ) : (
-      <div
-        class="governance-sheet"
-        aria-label="Example agent permission record"
-      >
-        <div class="sheet-heading">
-          <span>Working record / 001</span>
-          <span>Example</span>
-        </div>
-        <h2>What may this agent do?</h2>
-        <table class="decision-table">
-          <thead>
-            <tr>
-              <th>Action</th>
-              <th>Decision</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Read service health</td>
-              <td>
-                <span class="outcome">Allow</span>
-              </td>
-            </tr>
-            <tr>
-              <td>Restart production</td>
-              <td>
-                <span class="outcome">Ask the owner</span>
-              </td>
-            </tr>
-            <tr>
-              <td>Export customer data</td>
-              <td>
-                <span class="outcome">Deny</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="sheet-note">
-          Owner: service team
+  <div class="edition-line wrap">
+    <span>
+      {guardrails ? "The engineering field guide" : "The working handbook"}
+    </span>
+    <a href="/guides/">{guides.length} guides · Free to read</a>
+  </div>
+  {guardrails ? (
+    <section class="field-hero wrap">
+      <div class="field-hero-copy">
+        <p class="eyebrow">Models suggest. Your system decides.</p>
+        <h1>
+          AI guardrails,
           <br />
-          Scope: one service, one environment
+          from prompt
           <br />
-          Evidence: request, decision, result
+          to production.
+        </h1>
+        <p class="lede">
+          Understand prompt injection, validate outputs and control tool
+          actions. Follow worked examples, then test what your own system
+          allows.
         </p>
+        <div class="actions">
+          <a class="button" href="/guides/what-are-ai-guardrails/">
+            Start with the fundamentals
+          </a>
+          <a class="text-link" href="/guides/">
+            Explore the library ↗
+          </a>
+        </div>
       </div>
-    )}
-  </section>
-  <div class="field-band wrap">
-    <p class="eyebrow">
-      {guardrails ? "What a guardrail does" : "What governance means here"}
-    </p>
+      <figure class="boundary-map">
+        <div class="map-title">
+          <span>Before a tool acts</span>
+          <span>Control map / 01</span>
+        </div>
+        <ol>
+          <li>
+            <span class="map-step">01</span>
+            <div>
+              <span class="map-label">Input & retrieval</span>
+              <h2>A request meets outside content</h2>
+              <p>
+                Keep the user’s authority separate from documents and tool
+                results.
+              </p>
+              <a href="/guides/indirect-prompt-injection/">
+                Trace an indirect injection ↗
+              </a>
+            </div>
+          </li>
+          <li>
+            <span class="map-step">02</span>
+            <div>
+              <span class="map-label">Model output</span>
+              <h2>The model proposes an action</h2>
+              <p>Check the structure and meaning of the proposed arguments.</p>
+              <a href="/guides/structured-output-validation/">
+                Validate the output ↗
+              </a>
+            </div>
+          </li>
+          <li class="map-enforcement">
+            <span class="map-step">03</span>
+            <div>
+              <span class="map-label">Application boundary</span>
+              <h2>Enforce identity, scope and approval</h2>
+              <p>
+                The system receiving the action checks whether it is allowed.
+              </p>
+              <a href="/guides/tool-calling-guardrails/">
+                Control the tool call ↗
+              </a>
+            </div>
+          </li>
+          <li>
+            <span class="map-step">04</span>
+            <div>
+              <span class="map-label">Observed result</span>
+              <h2>Check what actually happened</h2>
+              <p>Test the protected resource and keep the decision record.</p>
+              <a href="/guides/ai-guardrails-testing/">Build a useful test ↗</a>
+            </div>
+          </li>
+        </ol>
+        <figcaption>
+          An example control path. The checks required depend on the action and
+          the data it can reach.
+        </figcaption>
+      </figure>
+    </section>
+  ) : (
+    <section class="handbook-hero wrap">
+      <div class="handbook-title">
+        <p class="eyebrow">For the people responsible for the agent</p>
+        <h1>A working handbook for AI agent governance.</h1>
+        <p class="lede">
+          Decide what an agent may do, who can approve a change, and what
+          evidence the team needs to keep.
+        </p>
+        <div class="actions">
+          <a class="button" href="/guides/what-is-ai-agent-governance/">
+            Begin with governance
+          </a>
+          <a class="text-link" href="/guides/">
+            Browse the chapters ↗
+          </a>
+        </div>
+      </div>
+      <figure class="authority-record">
+        <div class="record-top">
+          <span>Decision record</span>
+          <span>Illustrative example</span>
+        </div>
+        <h2>
+          One agent.
+          <br />A defined scope.
+        </h2>
+        <dl>
+          <div>
+            <dt>Owner</dt>
+            <dd>Payments engineering</dd>
+          </div>
+          <div>
+            <dt>Job</dt>
+            <dd>Investigate service failures</dd>
+          </div>
+          <div>
+            <dt>Allowed</dt>
+            <dd>Read selected health data</dd>
+          </div>
+          <div>
+            <dt>Approval</dt>
+            <dd>A specific production restart</dd>
+          </div>
+          <div>
+            <dt>Evidence</dt>
+            <dd>Request, decision and result</dd>
+          </div>
+        </dl>
+        <a href="/tools/decision-record/">Write your own decision record ↗</a>
+        <figcaption>
+          A review aid. The running system must enforce the permissions.
+        </figcaption>
+      </figure>
+    </section>
+  )}
+  <section class="reference-definition wrap">
+    <h2>
+      {guardrails ? "What are AI guardrails?" : "What is AI agent governance?"}
+    </h2>
     <p>
       {guardrails
-        ? "A guardrail checks a request, a response or a proposed action against a rule. Some checks catch unsafe content. Others limit what an agent can do. The useful question is where the check runs and what happens when it fails."
-        : "An agent needs a defined job, a responsible owner and permission to use specific tools. Governance turns those decisions into rules that people can review and systems can enforce."}
+        ? "AI guardrails are checks on an application’s inputs, outputs and actions. A content filter can reject a response; an authorization check can reject a tool request. Each control protects a different boundary, and each needs its own failure tests."
+        : "AI agent governance defines who owns an agent, what it may do and how its actions are reviewed. For agents that use tools, those decisions need enforceable permissions, usable records and a way to stop further work."}
     </p>
-  </div>
-  {!guardrails && (
-    <div class="reading-path wrap">
-      <a href="/guides/ai-agent-governance-framework/">
-        <span>01 / Set the scope</span>
-        <h3>Define the work</h3>
-        <p>Owners, assets and operating limits</p>
-      </a>
-      <a href="/guides/ai-agent-access-control/">
-        <span>02 / Control access</span>
-        <h3>Write the rules</h3>
-        <p>Permissions and approval decisions</p>
-      </a>
-      <a href="/guides/ai-agent-audit-trail/">
-        <span>03 / Keep the evidence</span>
-        <h3>Review what happened</h3>
-        <p>Records, incidents and changes</p>
-      </a>
-    </div>
-  )}
-  <section class="home-section wrap">
+  </section>
+  <section
+    class:list={["chapter-section wrap", { "handbook-chapters": !guardrails }]}
+  >
     <div class="section-heading">
       <div>
-        <p class="eyebrow">Start reading</p>
+        <p class="eyebrow">
+          {guardrails ? "Choose your next task" : "The chapters"}
+        </p>
         <h2>
           {guardrails
-            ? "Build checks you can explain"
-            : "Make the next decision clearer"}
+            ? "Understand it. Build it. Check it."
+            : "From the first permission\nto the last review."}
         </h2>
       </div>
-      <a href="/guides/">Browse all {guides.length} guides ↗</a>
+      <a href="/guides/">All {guides.length} guides ↗</a>
     </div>
-    <GuideList guides={featured} />
+    <div class="chapter-grid">
+      {topics.map((topic, index) => (
+        <section class="chapter">
+          <header>
+            <span class="chapter-number" aria-hidden="true">
+              0{index + 1}
+            </span>
+            <div>
+              <p class="eyebrow">{topic.category}</p>
+              <h3>
+                <a href={"/guides/?topic=" + topicId(topic.category)}>
+                  {topic.title}
+                </a>
+              </h3>
+            </div>
+          </header>
+          <p>{topic.text}</p>
+          <ul>
+            {select(topic.guides).map((guide) => (
+              <li>
+                <a href={"/guides/" + guide.id + "/"}>
+                  {guide.data.title}
+                  <span aria-hidden="true">↗</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+          <a
+            class="chapter-all"
+            href={"/guides/?topic=" + topicId(topic.category)}
+          >
+            All{" "}
+            {guides.filter((g) => g.data.category === topic.category).length}{" "}
+            {topic.category.toLowerCase()} guides →
+          </a>
+        </section>
+      ))}
+    </div>
   </section>
-  <section class="wrap editorial-grid">
-    <div class="feature-block">
-      <p class="eyebrow">
-        {guardrails ? "Try the policy lab" : "A tool for the next review"}
-      </p>
+  <section class="worked-section wrap">
+    <div class="worked-intro">
+      <p class="eyebrow">Work through a concrete decision</p>
       <h2>
         {guardrails
-          ? "Change the request. See the decision."
-          : "Write down who can approve the action."}
+          ? "The example is where\nthe rule gets specific."
+          : "A review needs more\nthan a checked box."}
       </h2>
       <p>
         {guardrails
-          ? "Choose an action and environment, then change the access and approval conditions. See which rule stops a request and why."
-          : "Work through the action, its scope and its owner. Download a decision record to discuss with your team."}
+          ? "Follow a request through the control, the failure case and the evidence you would inspect. The examples make their assumptions explicit."
+          : "Use completed examples to see what an owner should approve, what needs more evidence and what should remain out of scope."}
       </p>
+      <a
+        class="text-link"
+        href={
+          guardrails
+            ? "/guides/ai-guardrails-examples/"
+            : "/guides/ai-governance-examples/"
+        }
+      >
+        Open the worked examples ↗
+      </a>
+    </div>
+    <div>
+      <h3 class="eyebrow">
+        {guardrails ? "From the test bench" : "At the review table"}
+      </h3>
+      <GuideList
+        compact
+        guides={select(
+          guardrails
+            ? [
+                "prompt-injection-prevention",
+                "ai-guardrails-testing",
+                "llm-red-teaming",
+              ]
+            : [
+                "ai-agent-risk-assessment",
+                "ai-agent-evaluation",
+                "ai-governance-maturity-model",
+              ],
+        )}
+      />
+    </div>
+  </section>
+  <section class="practice-section wrap">
+    <div class="practice-heading">
+      <p class="eyebrow">Use what you learn</p>
+      <h2>
+        {guardrails ? "Try a policy decision." : "Prepare the next review."}
+      </h2>
+      <p>
+        {guardrails
+          ? "Change the request, access and approval state. See why an illustrative policy allows, holds or denies the action."
+          : "Describe the agent’s work, scope and owner. Download a record to discuss with the people responsible for the system."}
+      </p>
+    </div>
+    <div class="practice-actions">
       <a class="button" href={"/tools/" + site.tool + "/"}>
         {site.toolLabel}
       </a>
-    </div>
-    <div class="mini-index">
-      <h3>{guardrails ? "Useful starting points" : "Working documents"}</h3>
-      <ul>
-        {(guardrails
-          ? [
-              ["/guides/llm-guardrails/", "Where LLM guardrails run"],
-              ["/guides/pii-redaction/", "What redaction can miss"],
-              [
-                "/guides/ai-guardrails-tools/",
-                "How to compare guardrail tools",
-              ],
-              ["/resources/", "Download test cases and a checklist"],
-            ]
-          : [
-              ["/guides/ai-agent-governance-policy/", "A policy you can adapt"],
-              [
-                "/guides/ai-agent-risk-assessment/",
-                "Questions for a risk review",
-              ],
-              [
-                "/guides/ai-agent-incident-response/",
-                "When an agent does the wrong thing",
-              ],
-              ["/resources/", "Download the templates"],
-            ]
-        ).map(([href, label]) => (
-          <li>
-            <a href={href}>{label} ↗</a>
-          </li>
-        ))}
-      </ul>
+      <a href="/resources/">Get the worksheets and examples ↗</a>
+      <span>Free tools · No signup · Runs in your browser</span>
     </div>
   </section>
-  <section class="ownership wrap home-section">
+  <section class="editorial-credit wrap">
     <p>
-      Published by the team behind <a href="https://emisar.dev/">Emisar</a>,{" "}
+      Published by the team building <a href="https://emisar.dev/">Emisar</a>,{" "}
       <a href="https://ryker.emisar.dev/">Ryker</a> and{" "}
-      <a href="https://coop.dryga.com/">co:op</a>. The guides link to their
-      sources and explain where each approach stops.{" "}
-      <a href="/about/">How we write and review</a>.
+      <a href="https://coop.dryga.com/">co:op</a>. These guides explain the
+      controls and their limits, with links to the original sources.
     </p>
+    <a href="/about/">Our editorial approach ↗</a>
   </section>
 </Base>

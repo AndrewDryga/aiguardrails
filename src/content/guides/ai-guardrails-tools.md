@@ -1,7 +1,7 @@
 ---
 title: "How to choose AI guardrails tools"
 description: "Compare guardrail tool categories by what they inspect, where they enforce rules and how they fail in your application."
-category: Choose
+category: "Testing & tools"
 primaryKeyword: "ai guardrails tools"
 relatedKeywords:
   - "LLM guardrails tools"
@@ -19,9 +19,8 @@ sources:
     url: "https://presidio.dataprivacystack.org/"
   - title: "JSON Schema object validation"
     url: "https://json-schema.org/understanding-json-schema/reference/object"
+answer: "Choose an AI guardrails tool by the boundary you need to control. A text filter, a personal-data detector and a schema validator inspect different things. A tool that performs one job well may still leave the failure you care about outside its integration."
 ---
-
-Choose an AI guardrails tool by the boundary you need to control. A text filter, a personal-data detector and a schema validator inspect different things. A tool that performs one job well may still leave the failure you care about outside its integration.
 
 Write a short requirement before opening a comparison page. For example: "Remove customer email addresses from summaries before they reach the shared analytics system." That identifies the data, the transformation and the destination. "Add AI safety" does not give you a testable buying criterion.
 
@@ -48,9 +47,9 @@ For agents, inspect the tool path separately from the chat path. Ask whether arg
 
 Prepare ordinary allowed work and specific prohibited cases before starting a trial. Include the languages, file types and domain vocabulary your users actually supply.
 
-Use synthetic personal data with realistic formatting. Include examples that resemble sensitive data without being sensitive, such as product codes that look like account numbers. Measure both misses and incorrect blocking.
+Use synthetic personal data with realistic formatting. Include examples that resemble sensitive data without being sensitive, such as product codes that look like account numbers. Measure both misses and incorrect blocking using the [guardrail testing method](/guides/ai-guardrails-testing/).
 
-For a content classifier, record the chosen threshold and the examples near it. For a schema validator, send missing fields, extra fields and wrong types. For an execution policy, verify the underlying service receives no unauthorized action.
+For a content classifier, record the chosen threshold and the examples near it. The [prompt injection detector worksheet](/guides/prompt-injection-detection/) shows how to compare thresholds without confusing a detection score with permission. For a schema validator, send missing fields, extra fields and wrong types. For an execution policy, verify the underlying service receives no unauthorized action.
 
 Keep vendor demonstrations separate from your results. A useful demonstration shows how a feature works. It does not establish its reliability in your application.
 

@@ -23,6 +23,31 @@ const errors = [];
 const titles = new Set();
 const descriptions = new Set();
 const canonicalPaths = [];
+const sourceIds = (await readdir("src/content/guides"))
+  .filter((f) => f.endsWith(".md"))
+  .map((f) => f.slice(0, -3))
+  .sort();
+const searchIndex = JSON.parse(
+  await readFile(path.join(root, "search-index.json"), "utf8"),
+);
+assert.deepEqual(
+  searchIndex.map((record) => record.id).sort(),
+  sourceIds,
+  "full-text index must cover each guide exactly once",
+);
+const indexed = new Map(searchIndex.map((record) => [record.id, record.text]));
+const normalize = (text) => text.replace(/\s+/g, " ").trim();
+const library = parseHTML(
+  await readFile(path.join(root, "guides/index.html"), "utf8"),
+).document;
+assert.deepEqual(
+  [...library.querySelectorAll("[data-guide]")]
+    .map((row) => row.dataset.guide)
+    .sort(),
+  sourceIds,
+  "topic library must include every guide exactly once",
+);
+const inbound = new Map(sourceIds.map((id) => [id, 0]));
 let articleCount = 0;
 let linkCount = 0;
 for (const file of html) {
@@ -92,6 +117,52 @@ for (const file of html) {
     if (!document.querySelector(".prose")?.textContent?.trim())
       fail("guide body missing");
     if (!document.querySelector(".sources a")) fail("source documents missing");
+    const id = pagePath.split("/")[2];
+    const answer = normalize(
+      document.querySelector(".article-answer > p:last-child")?.textContent ||
+        "",
+    );
+    if (!answer) fail("direct answer missing");
+    if (!document.querySelector(".mobile-toc summary"))
+      fail("mobile contents missing");
+    const prose = normalize(
+      document.querySelector(".prose")?.textContent || "",
+    );
+    if (answer && prose.includes(answer))
+      fail("direct answer repeated in body");
+    if (!indexed.get(id)?.includes(answer))
+      fail("direct answer missing from full-text index");
+    const markdown = await readFile(
+      path.join(root, "text", id + ".md"),
+      "utf8",
+    );
+    if (!markdown.includes(answer) || !markdown.includes(canonical))
+      fail("download does not preserve answer and canonical source");
+    const bodyLinks = [
+      ...document.querySelectorAll('.prose a[href^="/guides/"]'),
+    ];
+    if (!bodyLinks.length) fail("no contextual guide links");
+    for (const link of [
+      ...bodyLinks,
+      ...document.querySelectorAll('.article-next a[href^="/guides/"]'),
+    ]) {
+      const target = link.getAttribute("href").split("/")[2];
+      if (target !== id && inbound.has(target))
+        inbound.set(target, inbound.get(target) + 1);
+    }
+    const headings = [...document.querySelectorAll(".prose h2,.prose h3")];
+    for (const heading of headings) {
+      for (const toc of document.querySelectorAll(
+        ".article-nav nav,.mobile-toc nav",
+      )) {
+        if (
+          ![...toc.querySelectorAll("a")].some(
+            (link) => link.getAttribute("href") === "#" + heading.id,
+          )
+        )
+          fail(`contents missing section ${heading.id}`);
+      }
+    }
   }
 }
 const sitemap = await readFile(path.join(root, "sitemap.xml"), "utf8");
@@ -109,14 +180,14 @@ for (const loc of locations)
     errors.push(`sitemap includes unknown or excluded page ${loc}`);
 assert.match(await readFile("dist/robots.txt", "utf8"), /Allow: \//);
 await access("dist/social.png");
-if (articleCount < 12)
-  errors.push(
-    `Expected the complete initial library, got ${articleCount} guides`,
-  );
+if (articleCount !== sourceIds.length)
+  errors.push(`Expected ${sourceIds.length} guides, got ${articleCount}`);
+for (const [id, count] of inbound)
+  if (!count) errors.push(`${id}: no incoming links from another guide`);
 if (errors.length) {
   console.error(errors.join("\n"));
   process.exit(1);
 }
 console.log(
-  `PASS: ${html.length} HTML pages, ${articleCount} articles, ${linkCount} local references, unique metadata, valid JSON-LD, exact sitemap coverage and downloadable resources.`,
+  `PASS: ${html.length} HTML pages, ${articleCount} articles, ${linkCount} local references, unique metadata, valid JSON-LD, exact sitemap coverage, full-text search coverage, desktop/mobile contents, contextual links and faithful Markdown exports.`,
 );
