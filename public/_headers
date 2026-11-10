@@ -9,3 +9,7 @@ https://:version.:project.pages.dev/*
 # Search data supports the library interface; the guides are the indexed pages.
 /search-index.json
   X-Robots-Tag: noindex
+
+# Preserve educational examples for crawlers; do not mask synthetic addresses.
+/guides/*
+  Cache-Control: public, max-age=0, must-revalidate, no-transform

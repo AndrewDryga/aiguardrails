@@ -27,7 +27,9 @@ Project settings:
 
 Connect the GitHub repository through Cloudflare Pages and attach `aiguardrails.dev` under Custom domains in the same account as its DNS zone. Cloudflare creates the DNS record and provisions HTTPS. Attach `www.aiguardrails.dev` too and redirect it to the canonical apex domain. Production deploys publish the `dist` output only after every check in the build command passes. Branch previews keep the production canonical URLs and Cloudflare's preview `noindex` header.
 
-No server adapter, runtime secrets, database or Pages Functions are needed. The canonical domain is served from `/`. The host-specific rules in `public/_headers` keep `pages.dev` aliases and previews out of search results while leaving the canonical domains indexable. Verify live HTTPS, canonical URLs, real 404 responses, redirects and tool downloads after deployment.
+No server adapter, runtime secrets, database or Pages Functions are needed. The canonical domain is served from `/`. The host-specific rules in `public/_headers` keep `pages.dev` aliases and previews out of search results while leaving the canonical domains indexable. After deployment, run `npm run audit:live` against the verified `dist` output. It compares every public HTML page and text/data export with the served response, then checks canonical URLs, indexability, real 404 responses, redirects and alias headers. Keep browser checks for interactive tools.
+
+Guide pages send `Cache-Control: public, max-age=0, must-revalidate, no-transform` so Cloudflare preserves synthetic email addresses in educational examples. [Cloudflare documents this exception to email obfuscation](https://developers.cloudflare.com/waf/tools/scrape-shield/email-address-obfuscation/). Removing it can make crawler-visible examples differ from the source.
 
 Official references: [Astro on Pages](https://developers.cloudflare.com/pages/framework-guides/deploy-an-astro-site/), [custom domains](https://developers.cloudflare.com/pages/configuration/custom-domains/) and [Node version selection](https://developers.cloudflare.com/pages/configuration/build-image/).
 
