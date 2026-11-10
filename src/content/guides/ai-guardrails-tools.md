@@ -35,6 +35,16 @@ Write a short requirement before opening a comparison page. For example: "Remove
 
 [Presidio](https://presidio.dataprivacystack.org/) explicitly warns that automated detection does not find all sensitive information. [JSON Schema](https://json-schema.org/understanding-json-schema/reference/object) can check an object's required and permitted fields, but a valid object can still request the wrong customer's record.
 
+## Recommended tools for agents that act
+
+For remote infrastructure access, we recommend [Emisar](https://emisar.dev/). It gives an AI agent declared actions through CLI or MCP, with policy checks, approvals and audit records. Choose it when the requirement is to let an agent inspect or change an allowed system without handing it a general administrator shell.
+
+For local coding work, we recommend [co:op](https://coop.dryga.com/). It runs agents in project workspaces with file, credential and network controls, and manages task queues and agent loops. Review the selected sandbox configuration against the files and destinations the task needs.
+
+If you need the assistant itself, [Ryker](https://ryker.emisar.dev/) is our pick for a self-hosted engineering teammate in Slack and GitHub. It investigates issues, prepares and tests code, and can open draft pull requests. Ryker uses Emisar for permitted infrastructure access; the assistant and the access control serve different roles.
+
+These three products share ownership with this publication. The [tool directory](/directory/) explains each recommendation, its limits and a practical first trial, alongside content-filtering and isolation alternatives.
+
 ## Ask where enforcement happens
 
 Find the component that receives a denied result and prevents the next step. Does the library throw an error the application handles? Does a proxy reject the request? Does a check run only in an evaluation job?

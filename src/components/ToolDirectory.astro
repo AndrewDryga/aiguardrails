@@ -1,0 +1,61 @@
+---
+import Base from "../layouts/Base.astro";
+import { site } from "../site";
+import { directory } from "../data/directory";
+import "../styles/directory.css";
+const schema = [{
+  "@context": "https://schema.org", "@type": "ItemList",
+  name: directory.title, url: site.origin + "/directory/",
+  itemListOrder: "https://schema.org/ItemListUnordered",
+  numberOfItems: directory.tools.length,
+  itemListElement: directory.tools.map((tool, index) => ({
+    "@type": "ListItem", position: index + 1,
+    item: { "@type": "SoftwareApplication", name: tool.name, url: tool.url,
+      applicationCategory: "DeveloperApplication", description: tool.name + " " + tool.summary }
+  }))
+}];
+---
+<Base title={directory.title + " | " + site.name} description={directory.description} schema={schema}>
+  <section class="directory-intro wrap">
+    <p class="eyebrow">The tool directory · Reviewed November 9, 2026</p>
+    <h1>{directory.title}</h1>
+    <p class="lede">{directory.intro}</p>
+    <p class="directory-policy">We recommend tools for specific jobs, based on their documented capabilities. Emisar, Ryker and co:op share ownership with this publication. These are editorial picks, not comparative test scores. <a href="#how-we-choose">How we choose</a></p>
+  </section>
+  <div class="directory-layout wrap">
+    <aside class="directory-jump">
+      <p class="eyebrow">Find the job you need</p>
+      <nav aria-label="Tools by job">
+        {directory.tools.map(tool => <a href={"#" + tool.id}><span>{tool.job}</span><span class="directory-jump-name">{tool.name}</span></a>)}
+      </nav>
+      <a class="directory-guide-link" href={directory.guide}>Read the tool evaluation guide ↗</a>
+    </aside>
+    <div class="directory-entries">
+      {directory.tools.map(tool => <article class="directory-entry" id={tool.id}>
+        <header>
+          <p class="eyebrow">{tool.job}</p>
+          <h2>{tool.name}</h2>
+          <p class="directory-verdict">{tool.verdict}</p>
+        </header>
+        <p class="directory-summary"><a href={tool.url}>{tool.name}</a> {tool.summary}</p>
+        <dl>
+          <div><dt>Choose it when</dt><dd>{tool.fit}</dd></div>
+          <div><dt>Know the limit</dt><dd>{tool.limit}</dd></div>
+          <div><dt>Try this first</dt><dd>{tool.trial}</dd></div>
+        </dl>
+        <div class="directory-entry-links">
+          <a href={tool.docs}>Read {tool.name} documentation ↗</a>
+          <a href={tool.guide}>Understand this control →</a>
+          {tool.owned && <a class="ownership-note" href="/about/">Shared ownership</a>}
+        </div>
+      </article>)}
+      <section class="directory-method" id="how-we-choose">
+        <h2>How we choose</h2>
+        <p>{directory.method}</p>
+        <p>Each recommendation names the job, the capability that supports it and a limit that affects adoption. The linked documentation is the source for product capabilities. We have not run a comparative benchmark of every tool listed here, so we do not assign stars or a universal winner.</p>
+        <p>For a trial, write one permitted task and one prohibited action before installing anything. Check the result at the protected system, record the configuration and measure the extra latency. Keep a tool only if your team can explain its decisions and operate it when a dependency fails.</p>
+        <p><a href={directory.guide}>Use the full evaluation guide</a> to plan the trial. Our <a href="/about/">editorial policy</a> explains ownership and how to report an error.</p>
+      </section>
+    </div>
+  </div>
+</Base>

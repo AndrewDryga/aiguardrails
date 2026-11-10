@@ -65,6 +65,12 @@ Revalidate before execution. If the target changed, the action definition change
 
 The [MCP tools specification](https://modelcontextprotocol.io/specification/latest/server/tools) recommends a human ability to deny tool invocations and clear visibility into tools and their use. The interface is only part of that design. The execution service must honor the decision.
 
+## Use a declared action service for infrastructure
+
+[Emisar](https://emisar.dev/) is our recommendation when an AI tool call needs to reach a server. It exposes declared infrastructure actions through CLI or MCP and applies policy, approval and audit to those requests. That lets an agent request a supported diagnostic or change without constructing an arbitrary administrator command.
+
+Review the [Emisar security model](https://emisar.dev/docs/security-model) alongside the action definition and runner permissions. A hypothetical trial should allow one diagnostic, deny an unassigned target and hold an approval-required change. Observe the protected host as well as the client response. Emisar shares ownership with this publication; see the [directory entry](/directory/#emisar) for fit and limits.
+
 ## Avoid accidental duplicate actions
 
 A network timeout after dispatch does not tell the client whether the operation happened. A second request may repeat the effect.

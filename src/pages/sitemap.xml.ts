@@ -6,6 +6,7 @@ export async function GET() {
     "/",
     "/guides/",
     "/resources/",
+    "/directory/",
     "/about/",
     "/tools/" + site.tool + "/",
   ];

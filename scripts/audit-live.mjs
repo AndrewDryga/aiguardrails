@@ -72,8 +72,8 @@ for (const list of [html, content]) {
           );
           if (route.startsWith("/guides/"))
             assert.ok(
-              response.headers.get("cache-control")?.includes("no-transform"),
-              route + ": preserve source examples for crawlers",
+              ["br", "gzip", "zstd"].includes(response.headers.get("content-encoding")),
+              route + ": guides must arrive compressed",
             );
         }
         if (route.startsWith("/text/") && route.endsWith(".md"))
@@ -156,5 +156,5 @@ const report = {
 await mkdir("artifacts", { recursive: true });
 await writeFile("artifacts/live-audit.json", JSON.stringify(report, null, 2));
 console.log(
-  `PASS: ${html.length} live HTML pages and ${content.length} text/data files exactly match dist; canonical URLs, indexability, no-transform, real 404, retired-route 410, social images, www redirect and alias/search noindex verified.`,
+  `PASS: ${html.length} live HTML pages and ${content.length} text/data files exactly match dist; canonical URLs, indexability, guide compression, real 404, retired-route 410, social images, www redirect and alias/search noindex verified.`,
 );

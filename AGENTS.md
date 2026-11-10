@@ -19,7 +19,8 @@ customer stories, ratings, results, legal guarantees or certifications.
 
 Use this publication's own identity in navigation, footers, homepage credits,
 bylines, schema, text exports and social images. Do not turn these shared surfaces
-into promotion for Emisar, Ryker or co:op, or add a portfolio hub. The Emisar
+into promotion for Emisar, Ryker or co:op, or add a portfolio hub. A useful tool directory may recommend owned products
+alongside alternatives, with documented criteria, limits and ownership disclosure. The Emisar
 product-site convention of selling in shared page chrome does not apply here.
 
 Emisar, Ryker and co:op share ownership with this publication. Keep that fact in

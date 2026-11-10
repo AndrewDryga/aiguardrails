@@ -952,3 +952,27 @@ html[data-theme="governance"] .library-intro h1 {
   font-size: 14px;
   margin-top: 24px;
 }
+
+/* Keep navigation readable with the directory and at narrow viewport widths. */
+.site-header nav { flex-wrap: wrap; }
+.site-header nav a { min-height: 44px; display: inline-flex; align-items: center; white-space: nowrap; }
+@media (min-width: 761px) and (max-width: 1050px) {
+  .site-header { flex-wrap: wrap; gap: 8px; padding-block: 20px; }
+  .site-header nav { gap: 24px; }
+}
+@media (max-width: 760px) {
+  .site-header nav { justify-content: space-between; gap: 0 12px; }
+  .site-header nav a[href="/about/"] { display: none; }
+  .footer-links a { min-height: 44px; display: inline-flex; align-items: center; }
+  .mobile-toc nav { gap: 0; }
+  .mobile-toc a { display: flex; align-items: center; min-height: 44px; padding-block: 8px; }
+  .article-header h1 { overflow-wrap: anywhere; }
+}
+@media (max-width: 360px) {
+  .site-header nav { gap: 0 8px; }
+  .field-hero h1 { font-size: 40px; }
+  html[data-theme="governance"] .handbook-title h1 { font-size: 48px; }
+  .guide-list.compact .guide-row { gap: 12px; }
+  .article-header h1 { font-size: 34px; }
+  html[data-theme="governance"] .article-header h1 { font-size: 40px; }
+}

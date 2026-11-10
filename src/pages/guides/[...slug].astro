@@ -151,7 +151,9 @@ const schema = [
         </nav>
       </details>
       <div class="prose">
+        <Fragment set:html="<!--email_off-->" />
         <Content />
+        <Fragment set:html="<!--/email_off-->" />
       </div>
       <section class="sources" id="source-documents">
         <p class="eyebrow">Check the evidence</p>

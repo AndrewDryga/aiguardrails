@@ -123,6 +123,8 @@ for (const file of html) {
     if (!document.querySelector(".prose")?.textContent?.trim())
       fail("guide body missing");
     if (!document.querySelector(".sources a")) fail("source documents missing");
+    assert.ok(source.includes("<!--email_off-->") && source.includes("<!--/email_off-->"),
+      pagePath + ": protect example addresses without disabling compression");
     const id = pagePath.split("/")[2];
     const answer = normalize(
       document.querySelector(".article-answer > p:last-child")?.textContent ||

@@ -34,6 +34,12 @@ All components -> selected telemetry under a separate access policy
 
 Mark the components that an external author, ordinary user or compromised dependency could influence. Identify where a trusted fact is obtained: user identity, assigned service, approved destination and current policy. Keep those facts separate from text the model generates.
 
+### A concrete engineering-assistant stack
+
+[Ryker](https://ryker.emisar.dev/) is a self-hosted engineering assistant that works through Slack, GitHub and a web console. Its documented workflow uses [co:op](https://coop.dryga.com/) for coding sandboxes and [Emisar](https://emisar.dev/) for permitted remote infrastructure actions. This is a useful stack to review when the same assistant needs to investigate a running service and prepare a code fix.
+
+Mark each product on the map by its job: Ryker receives and follows the task, co:op bounds the coding environment, and Emisar controls declared remote actions through CLI or MCP. Then trace the credentials and data between them. Sharing a workflow does not remove the need to review each boundary. These products share ownership with this publication. The [directory](/directory/) links their documentation and lists alternatives for other parts of the application.
+
 ## Turn the map into a threat register
 
 | Asset or boundary | Concrete failure scenario | First owner to involve |

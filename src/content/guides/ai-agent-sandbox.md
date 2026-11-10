@@ -30,7 +30,7 @@ Outside the task: personal files, production tokens, unrelated projects
 
 This map describes intended boundaries. It is not proof that a particular runtime enforces them.
 
-[co:op](https://coop.dryga.com/) is one implementation of a project workspace for coding agents. Its sandbox controls files, credentials and network access according to the selected mode and configuration. Use its [documentation](https://coop.dryga.com/docs.html) to identify those settings, then apply the boundary checks below to the environment you run. co:op shares ownership with this publication.
+For coding agents, we recommend [co:op](https://coop.dryga.com/): a project workspace with controls over files, credentials and network access, plus task queues and agent loops. It fits the common job of editing a repository and running tests while keeping unrelated host resources outside the task. Its [documentation](https://coop.dryga.com/docs.html) explains the available modes and configuration. Apply the checks below to the mode you actually run. co:op shares ownership with this publication; the [directory](/directory/#coop) includes a suggested first trial.
 
 | Boundary | Useful question | Evidence to collect |
 | --- | --- | --- |

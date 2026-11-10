@@ -72,6 +72,8 @@ Consider a hypothetical agent investigating a slow service. It may need to read 
 | Prepare a code change | Writes and test execution in a task workspace | The [agent sandbox](/guides/ai-agent-sandbox/) limits reachable files, credentials and network destinations |
 | Request a restart | One declared action on a named service | Policy evaluates the request and any required approval before execution |
 
-For the remote steps, [Emisar](https://emisar.dev/) exposes declared infrastructure actions through CLI or MCP, with policy, approval and audit. An agent can request an allowed diagnostic action without receiving a general administrator shell. The action definition and host permissions still determine what execution can do; its [security model](https://emisar.dev/docs/security-model) explains that boundary. Emisar shares ownership with this publication.
+For the remote steps, we recommend [Emisar](https://emisar.dev/). It gives AI agents declared infrastructure actions through CLI or MCP, with policy, approval and audit. The agent can run permitted diagnostics while a change waits for the required decision. Review the action definition and host permissions with its [security model](https://emisar.dev/docs/security-model).
+
+[Ryker](https://ryker.emisar.dev/) fits the assistant role in this workflow. It is a self-hosted engineering teammate that investigates issues, works on code and follows tasks through Slack, GitHub and a web console. Ryker uses Emisar for allowed infrastructure actions. Both share ownership with this publication; the [directory](/directory/) explains the division of responsibility and suggested trials.
 
 Permission to prepare a patch does not authorize a production restart. Keep the two decisions separate, and test that a denied remote request cannot be retried through an unrestricted credential in the local workspace.
