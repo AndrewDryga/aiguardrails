@@ -76,6 +76,12 @@ for (const list of [html, content]) {
               route + ": preserve source examples for crawlers",
             );
         }
+        if (route.startsWith("/text/") && route.endsWith(".md"))
+          assert.equal(
+            response.headers.get("link"),
+            `<${origin}/guides/${path.basename(route, ".md")}/>; rel="canonical"`,
+            route + ": Markdown must point to its HTML canonical",
+          );
         return {
           route,
           status: response.status,
@@ -145,6 +151,7 @@ const report = {
   www_redirect: true,
   alias_noindex: true,
   search_index_noindex: true,
+  markdown_http_canonicals: true,
 };
 await mkdir("artifacts", { recursive: true });
 await writeFile("artifacts/live-audit.json", JSON.stringify(report, null, 2));

@@ -37,4 +37,6 @@ Official references: [Astro on Pages](https://developers.cloudflare.com/pages/fr
 
 The build emits canonical URLs, social previews, Article and breadcrumb schema, a sitemap and a permissive robots.txt for public material. The library fetches a static full-text search index when a reader starts searching, with a titles-and-summaries fallback if that request fails. Topic groups and all guide links are present in the HTML without JavaScript. The search JSON is marked noindex; guide pages remain indexable.
 
+The build generates explicit HTTP canonical headers for every Markdown guide export in `dist/_headers`. These point to the corresponding HTML guide while keeping the text accessible. Both build and live audits check this mapping.
+
 The text index is a convenience for readers and agents, not a promised ranking factor. There are no analytics scripts or tracking cookies. Verify domains in Search Console/Bing after deployment; track qualified visits, tool use and product activation separately from rankings and AI citations.

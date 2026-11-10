@@ -35,6 +35,12 @@ assert.deepEqual(
   sourceIds,
   "full-text index must cover each guide exactly once",
 );
+const headers = await readFile(path.join(root, "_headers"), "utf8");
+for (const id of sourceIds)
+  assert.ok(
+    headers.includes(`/text/${id}.md\n  Link: <${expectedOrigin}/guides/${id}/>; rel="canonical"`),
+    `${id}: missing Markdown HTTP canonical`,
+  );
 const indexed = new Map(searchIndex.map((record) => [record.id, record.text]));
 const normalize = (text) => text.replace(/\s+/g, " ").trim();
 const library = parseHTML(
