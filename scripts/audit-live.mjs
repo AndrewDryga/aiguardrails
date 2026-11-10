@@ -29,7 +29,7 @@ const html = files.filter(
 );
 const content = files.filter(
   (file) =>
-    /\.(md|csv|json)$/.test(file) ||
+    (/\.(md|csv|json)$/.test(file) && path.basename(file) !== "_routes.json") ||
     ["robots.txt", "sitemap.xml", "llms.txt"].includes(path.basename(file)),
 );
 const checks = [];
@@ -92,6 +92,29 @@ const missing = await request(
 );
 assert.equal(missing.status, 404);
 assert.ok((await missing.text()).includes("noindex"));
+// Deleted assets can survive a deployment in the custom-domain cache.
+// Check the former public URLs as well as files that still exist in dist.
+for (const route of ["/tools-we-build", "/tools-we-build/"]) {
+  const response = await request(origin + route, { redirect: "manual" });
+  assert.equal(
+    response.status,
+    410,
+    route + ": retired content must stay gone",
+  );
+  assert.equal(response.headers.get("cache-control"), "no-store");
+  assert.ok(response.headers.get("x-robots-tag")?.includes("noindex"));
+  assert.ok((await response.text()).startsWith("This page has been removed."));
+}
+for (const asset of ["social.svg", "social.png"]) {
+  const response = await request(origin + "/" + asset);
+  assert.equal(response.status, 200);
+  assert.ok(
+    Buffer.from(await response.arrayBuffer()).equals(
+      await readFile(path.join(root, asset)),
+    ),
+    asset + ": stale social image",
+  );
+}
 const alias = await request(`https://${project}.pages.dev/`);
 assert.equal(alias.status, 200);
 assert.ok(alias.headers.get("x-robots-tag")?.includes("noindex"));
@@ -117,6 +140,8 @@ const report = {
   exact_build_matches: checks.length,
   checks,
   real_404: true,
+  retired_routes_gone: true,
+  social_images_match: true,
   www_redirect: true,
   alias_noindex: true,
   search_index_noindex: true,
@@ -124,5 +149,5 @@ const report = {
 await mkdir("artifacts", { recursive: true });
 await writeFile("artifacts/live-audit.json", JSON.stringify(report, null, 2));
 console.log(
-  `PASS: ${html.length} live HTML pages and ${content.length} text/data files exactly match dist; canonical URLs, indexability, no-transform, real 404, www redirect and alias/search noindex verified.`,
+  `PASS: ${html.length} live HTML pages and ${content.length} text/data files exactly match dist; canonical URLs, indexability, no-transform, real 404, retired-route 410, social images, www redirect and alias/search noindex verified.`,
 );

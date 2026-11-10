@@ -1,7 +1,8 @@
 # Site contributor instructions
 
 This is a standalone educational publication built with Astro. Keep it deployable
-as static files on Cloudflare Pages.
+as static files on Cloudflare Pages. The only edge Function retires the former
+portfolio URL; keep its invocation routes limited to that URL.
 Use `npm run verify` after changes. Inspect affected pages on desktop and mobile.
 Do not publish or change DNS unless the user authorizes that action.
 
