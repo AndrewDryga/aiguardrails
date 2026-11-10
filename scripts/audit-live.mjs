@@ -9,6 +9,8 @@ import config from "../astro.config.mjs";
 const root = path.resolve("dist");
 const origin = config.site;
 const project = JSON.parse(await readFile("package.json", "utf8")).name;
+// Cloudflare consumes only these control comments; every content byte must remain.
+const contentBytes = (text) => text.replaceAll("<!--email_off-->", "").replaceAll("<!--/email_off-->", "");
 const hash = (text) => createHash("sha256").update(text).digest("hex");
 async function walk(dir) {
   return (
@@ -48,8 +50,8 @@ for (const list of [html, content]) {
         const actual = await response.text();
         const expected = await readFile(file, "utf8");
         assert.equal(
-          hash(actual),
-          hash(expected),
+          hash(contentBytes(actual)),
+          hash(contentBytes(expected)),
           `${route}: served content differs from the verified build; inspect CDN transformations or deployment freshness`,
         );
         if (file.endsWith(".html")) {
@@ -87,6 +89,7 @@ for (const list of [html, content]) {
           status: response.status,
           sha256: hash(actual),
           matches_local_build: true,
+          content_encoding: response.headers.get("content-encoding"),
         };
       }),
     );
@@ -143,7 +146,8 @@ const report = {
   origin,
   html_pages: html.length,
   content_files: content.length,
-  exact_build_matches: checks.length,
+  content_build_matches: checks.length,
+  excluded_control_comments: ["<!--email_off-->", "<!--/email_off-->"],
   checks,
   real_404: true,
   retired_routes_gone: true,
@@ -156,5 +160,5 @@ const report = {
 await mkdir("artifacts", { recursive: true });
 await writeFile("artifacts/live-audit.json", JSON.stringify(report, null, 2));
 console.log(
-  `PASS: ${html.length} live HTML pages and ${content.length} text/data files exactly match dist; canonical URLs, indexability, guide compression, real 404, retired-route 410, social images, www redirect and alias/search noindex verified.`,
+  `PASS: ${html.length} live HTML pages and ${content.length} text/data files match dist apart from consumed email-protection comments; canonical URLs, indexability, guide compression, real 404, retired-route 410, social images, www redirect and alias/search noindex verified.`,
 );
