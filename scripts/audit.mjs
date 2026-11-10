@@ -3,8 +3,8 @@ import path from "node:path";
 import assert from "node:assert/strict";
 import { parseHTML } from "linkedom";
 const root = path.resolve("dist");
-const origin = (await readFile("public/CNAME", "utf8")).trim();
-const expectedOrigin = "https://" + origin;
+const { default: config } = await import("../astro.config.mjs");
+const expectedOrigin = config.site;
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
   return (
@@ -107,9 +107,7 @@ for (const page of canonicalPaths)
 for (const loc of locations)
   if (!canonicalPaths.includes(new URL(loc).pathname))
     errors.push(`sitemap includes unknown or excluded page ${loc}`);
-assert.equal((await readFile("dist/CNAME", "utf8")).trim(), origin);
 assert.match(await readFile("dist/robots.txt", "utf8"), /Allow: \//);
-await access("dist/.nojekyll");
 await access("dist/social.png");
 if (articleCount < 12)
   errors.push(
@@ -120,5 +118,5 @@ if (errors.length) {
   process.exit(1);
 }
 console.log(
-  `PASS: ${html.length} HTML pages, ${articleCount} articles, ${linkCount} local references, unique metadata, valid JSON-LD, exact sitemap coverage and custom-domain files.`,
+  `PASS: ${html.length} HTML pages, ${articleCount} articles, ${linkCount} local references, unique metadata, valid JSON-LD, exact sitemap coverage and downloadable resources.`,
 );

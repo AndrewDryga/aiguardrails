@@ -1,6 +1,6 @@
 # AI Guardrails
 
-An Astro static site for **https://aiguardrails.dev**, ready for GitHub Pages with a custom domain.
+An Astro static site for **https://aiguardrails.dev**, hosted on Cloudflare Pages with a custom domain.
 
 ## Local work
 
@@ -12,17 +12,24 @@ Guides live in `src/content/guides/`. Their frontmatter owns titles, summaries, 
 
 Technical statements need current primary sources. Keep instructions and examples useful without buying a product. Disclose related products through the shared footer and tools page. Read `ATTRIBUTION.md` for the requested Humanizer and Unslop references.
 
-## GitHub Pages
+## Cloudflare Pages
 
-1. Create a repository with this directory as its root and push `main`.
-2. In Settings → Pages, choose GitHub Actions as the publishing source.
-3. Set the custom domain to `aiguardrails.dev` in the Pages settings. A CNAME file alone does not configure a custom domain for an Actions deployment.
-4. Configure DNS for the repository owner's GitHub Pages endpoint, using GitHub's current custom-domain instructions. Enable HTTPS after the certificate is ready.
-5. The included workflow runs verification, uploads `dist/`, and deploys that same artifact. Pull requests get checks without deployment permissions.
+Source repository: `AndrewDryga/aiguardrails`. Cloudflare Pages builds from `main`; GitHub Actions runs the same verification without deployment credentials.
 
-The custom domain is served from `/`, so no repository-name `base` is configured. Test with the custom domain before promoting public links. `.dev` requires HTTPS in browsers.
+Project settings:
 
-Official setup references: [Astro](https://docs.astro.build/en/guides/deploy/github/) and [GitHub custom domains](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site).
+- Framework preset: Astro
+- Production branch: `main`
+- Build command: `npm run verify`
+- Build output directory: `dist`
+- Root directory: repository root
+- Node version: pinned in `.nvmrc`
+
+Connect the GitHub repository through Cloudflare Pages and attach `aiguardrails.dev` under Custom domains in the same account as its DNS zone. Cloudflare creates the DNS record and provisions HTTPS. Attach `www.aiguardrails.dev` too and redirect it to the canonical apex domain. Production deploys publish the `dist` output only after every check in the build command passes. Branch previews keep the production canonical URLs and Cloudflare's preview `noindex` header.
+
+No server adapter, runtime secrets, database or Pages Functions are needed. The canonical domain is served from `/`. Keep the default `pages.dev` production host out of search results using an exact-host rule once its assigned name is known. Verify live HTTPS, canonical URLs, real 404 responses, redirects and tool downloads after deployment.
+
+Official references: [Astro on Pages](https://developers.cloudflare.com/pages/framework-guides/deploy-an-astro-site/), [custom domains](https://developers.cloudflare.com/pages/configuration/custom-domains/) and [Node version selection](https://developers.cloudflare.com/pages/configuration/build-image/).
 
 ## Search and measurement
 

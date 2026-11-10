@@ -1,6 +1,6 @@
 # Site contributor instructions
 
-This is an independent Astro site. Keep it deployable as static files on GitHub Pages.
+This is an independent Astro site. Keep it deployable as static files on Cloudflare Pages.
 Use `npm run verify` after changes. Inspect affected pages on desktop and mobile.
 Do not publish or change DNS unless the user authorizes that action.
 
