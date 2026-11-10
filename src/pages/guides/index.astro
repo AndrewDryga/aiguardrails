@@ -1,0 +1,65 @@
+---
+import Base from "../../layouts/Base.astro";
+import GuideList from "../../components/GuideList.astro";
+import { getCollection } from "astro:content";
+import { site } from "../../site";
+const guides = (await getCollection("guides")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+---
+
+<Base
+  title={"Guides | " + site.name}
+  description={
+    "Practical " +
+    site.name.toLowerCase() +
+    " guides with examples, checks, source documents and useful limits."
+  }
+>
+  <section class="page-intro wrap">
+    <p class="eyebrow">The guide library</p>
+    <h1>
+      Find the next thing
+      <br />
+      you need to know
+    </h1>
+    <p class="lede">
+      Start with the basics, or go straight to the problem in front of you.
+    </p>
+  </section>
+  <section class="wrap library">
+    <div class="search-field">
+      <label for="guide-search">Search the guides</label>
+      <input
+        type="search"
+        id="guide-search"
+        placeholder="Try permissions, testing or tools"
+      />
+      <span id="search-count" aria-live="polite">
+        {guides.length} guides
+      </span>
+    </div>
+    <GuideList guides={guides} />
+    <p id="no-results" hidden>
+      No guides match that search. Try a shorter phrase, or clear the search to
+      see everything.
+    </p>
+  </section>
+</Base>
+<script>
+  const input = document.querySelector<HTMLInputElement>("#guide-search");
+  const rows = [...document.querySelectorAll<HTMLAnchorElement>(".guide-row")];
+  input?.addEventListener("input", () => {
+    const terms = input.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const row of rows) {
+      row.hidden = !terms.every((term) => row.dataset.search?.includes(term));
+      if (!row.hidden) count++;
+    }
+    const counter = document.querySelector("#search-count");
+    if (counter)
+      counter.textContent = `${count} guide${count === 1 ? "" : "s"}`;
+    const empty = document.querySelector<HTMLElement>("#no-results");
+    if (empty) empty.hidden = count > 0;
+  });
+</script>

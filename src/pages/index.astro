@@ -1,0 +1,242 @@
+---
+import Base from "../layouts/Base.astro";
+import GuideList from "../components/GuideList.astro";
+import { getCollection } from "astro:content";
+import { site } from "../site";
+const guides = (await getCollection("guides")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const guardrails = site.theme === "guardrails";
+const featured = guides.filter((g) =>
+  (guardrails
+    ? [
+        "what-are-ai-guardrails",
+        "prompt-injection-prevention",
+        "tool-calling-guardrails",
+        "ai-guardrails-testing",
+      ]
+    : [
+        "what-is-ai-agent-governance",
+        "ai-agent-access-control",
+        "human-in-the-loop-ai",
+        "ai-agent-audit-trail",
+      ]
+  ).includes(g.id),
+);
+---
+
+<Base
+  title={
+    guardrails
+      ? "AI Guardrails: practical guides, tests and examples"
+      : "AI Agent Governance: policies, permissions and practical guides"
+  }
+  description={
+    guardrails
+      ? "Learn how AI guardrails work. Practical guides to prompt injection, LLM checks, tool permissions and testing, with a policy lab and downloadable examples."
+      : "Build an AI agent governance process with clear permissions, human approvals and audit records. Practical guides, policy templates and a decision-record tool."
+  }
+>
+  <section class="hero wrap">
+    <div>
+      <p class="eyebrow">
+        {guardrails
+          ? "A field guide for people building with AI"
+          : "A handbook for teams putting agents to work"}
+      </p>
+      <h1>{site.headline}</h1>
+      <p class="lede">{site.description}</p>
+      <div class="actions">
+        <a class="button" href={"/guides/" + site.firstGuide + "/"}>
+          Start with the basics
+        </a>
+        <a class="text-link" href={"/tools/" + site.tool + "/"}>
+          {site.toolLabel} ↗
+        </a>
+      </div>
+    </div>
+    {guardrails ? (
+      <div
+        class="guardrails-visual"
+        aria-label="Example policy decision for a service restart"
+      >
+        <div class="visual-head">
+          <span>Example / action boundary</span>
+          <span>Before execution</span>
+        </div>
+        <div class="request">
+          <p>Requested action</p>
+          <code>restart_service("api-prod")</code>
+        </div>
+        <div class="check-lines">
+          <div class="check-line">
+            <span>1</span>Is this agent allowed on this host?
+          </div>
+          <div class="check-line">
+            <span>2</span>Is the action in its allowed set?
+          </div>
+          <div class="check-line">
+            <span>3</span>Does this change need a person?
+          </div>
+        </div>
+        <div class="decision">
+          <strong>Wait for approval</strong>
+          <small>Action has not run</small>
+        </div>
+        <p class="visual-caption">
+          An example policy, not a live infrastructure request
+        </p>
+      </div>
+    ) : (
+      <div
+        class="governance-sheet"
+        aria-label="Example agent permission record"
+      >
+        <div class="sheet-heading">
+          <span>Working record / 001</span>
+          <span>Example</span>
+        </div>
+        <h2>What may this agent do?</h2>
+        <table class="decision-table">
+          <thead>
+            <tr>
+              <th>Action</th>
+              <th>Decision</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Read service health</td>
+              <td>
+                <span class="outcome">Allow</span>
+              </td>
+            </tr>
+            <tr>
+              <td>Restart production</td>
+              <td>
+                <span class="outcome">Ask the owner</span>
+              </td>
+            </tr>
+            <tr>
+              <td>Export customer data</td>
+              <td>
+                <span class="outcome">Deny</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="sheet-note">
+          Owner: service team
+          <br />
+          Scope: one service, one environment
+          <br />
+          Evidence: request, decision, result
+        </p>
+      </div>
+    )}
+  </section>
+  <div class="field-band wrap">
+    <p class="eyebrow">
+      {guardrails ? "What a guardrail does" : "What governance means here"}
+    </p>
+    <p>
+      {guardrails
+        ? "A guardrail checks a request, a response or a proposed action against a rule. Some checks catch unsafe content. Others limit what an agent can do. The useful question is where the check runs and what happens when it fails."
+        : "An agent needs a defined job, a responsible owner and permission to use specific tools. Governance turns those decisions into rules that people can review and systems can enforce."}
+    </p>
+  </div>
+  {!guardrails && (
+    <div class="reading-path wrap">
+      <a href="/guides/ai-agent-governance-framework/">
+        <span>01 / Set the scope</span>
+        <h3>Define the work</h3>
+        <p>Owners, assets and operating limits</p>
+      </a>
+      <a href="/guides/ai-agent-access-control/">
+        <span>02 / Control access</span>
+        <h3>Write the rules</h3>
+        <p>Permissions and approval decisions</p>
+      </a>
+      <a href="/guides/ai-agent-audit-trail/">
+        <span>03 / Keep the evidence</span>
+        <h3>Review what happened</h3>
+        <p>Records, incidents and changes</p>
+      </a>
+    </div>
+  )}
+  <section class="home-section wrap">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Start reading</p>
+        <h2>
+          {guardrails
+            ? "Build checks you can explain"
+            : "Make the next decision clearer"}
+        </h2>
+      </div>
+      <a href="/guides/">Browse all {guides.length} guides ↗</a>
+    </div>
+    <GuideList guides={featured} />
+  </section>
+  <section class="wrap editorial-grid">
+    <div class="feature-block">
+      <p class="eyebrow">
+        {guardrails ? "Try the policy lab" : "A tool for the next review"}
+      </p>
+      <h2>
+        {guardrails
+          ? "Change the request. See the decision."
+          : "Write down who can approve the action."}
+      </h2>
+      <p>
+        {guardrails
+          ? "Choose an action and environment, then change the access and approval conditions. See which rule stops a request and why."
+          : "Work through the action, its scope and its owner. Download a decision record to discuss with your team."}
+      </p>
+      <a class="button" href={"/tools/" + site.tool + "/"}>
+        {site.toolLabel}
+      </a>
+    </div>
+    <div class="mini-index">
+      <h3>{guardrails ? "Useful starting points" : "Working documents"}</h3>
+      <ul>
+        {(guardrails
+          ? [
+              ["/guides/llm-guardrails/", "Where LLM guardrails run"],
+              ["/guides/pii-redaction/", "What redaction can miss"],
+              [
+                "/guides/ai-guardrails-tools/",
+                "How to compare guardrail tools",
+              ],
+              ["/resources/", "Download test cases and a checklist"],
+            ]
+          : [
+              ["/guides/ai-agent-governance-policy/", "A policy you can adapt"],
+              [
+                "/guides/ai-agent-risk-assessment/",
+                "Questions for a risk review",
+              ],
+              [
+                "/guides/ai-agent-incident-response/",
+                "When an agent does the wrong thing",
+              ],
+              ["/resources/", "Download the templates"],
+            ]
+        ).map(([href, label]) => (
+          <li>
+            <a href={href}>{label} ↗</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+  <section class="ownership wrap home-section">
+    <p>
+      Published by the team behind <a href="https://emisar.dev/">Emisar</a>,{" "}
+      <a href="https://ryker.emisar.dev/">Ryker</a> and{" "}
+      <a href="https://coop.dryga.com/">co:op</a>. The guides link to their
+      sources and explain where each approach stops.{" "}
+      <a href="/about/">How we write and review</a>.
+    </p>
+  </section>
+</Base>

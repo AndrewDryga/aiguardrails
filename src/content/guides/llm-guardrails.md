@@ -1,0 +1,74 @@
+---
+title: "LLM guardrails for applications that generate answers"
+description: "Design LLM guardrails around retrieval, generation, output validation and failure handling without assuming one filter covers every path."
+category: Build
+primaryKeyword: "llm guardrails"
+relatedKeywords:
+  - "guardrails for LLM"
+  - "LLM output validation"
+  - "AI content filtering"
+order: 2
+reviewedDate: "2026-11-09"
+related:
+  [
+    "prompt-injection-prevention",
+    "structured-output-validation",
+    "ai-guardrails-testing",
+  ]
+sources:
+  - title: "NVIDIA NeMo Guardrails overview"
+    url: "https://docs.nvidia.com/nemo/guardrails/about-nemo-guardrails-library/overview"
+  - title: "Using the ApplyGuardrail API"
+    url: "https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-use-independent-api.html"
+  - title: "Google Cloud safety and content filters"
+    url: "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/capabilities/configure-safety-filters"
+---
+
+LLM guardrails check what an application sends to a language model and what it does with the response. For an assistant that answers from company documents, that includes the user's request, retrieved passages, generated text and any data passed to another service. Draw those paths before selecting a filter.
+
+Suppose an employee asks a handbook assistant about parental leave. The application retrieves policy documents, asks a model to explain them, and displays an answer with links. A useful design checks document access before retrieval, keeps the answer within the available evidence, and handles missing information without inventing a policy.
+
+## Put each check next to the decision it controls
+
+An input check can reject an unsupported request before spending money on generation. A retrieval check can remove material that the user should not receive. An output check can reject a malformed answer before the interface renders it.
+
+These stages are explicit in [NeMo Guardrails' architecture](https://docs.nvidia.com/nemo/guardrails/about-nemo-guardrails-library/overview), which includes input, retrieval and output rails. Their presence in a framework does not mean every stage is configured in your application. Follow a request through the running integration and identify which checks it actually invokes.
+
+| Stage    | Handbook assistant check                          | Failure behavior                               |
+| -------- | ------------------------------------------------- | ---------------------------------------------- |
+| Retrieve | User can access the selected policy document      | Omit inaccessible material                     |
+| Generate | Provide document text and its source identifiers  | Stop if the required source is unavailable     |
+| Validate | Referenced sources exist in this retrieval result | Ask for clarification or show a limited answer |
+| Display  | Render text with the application's escaping rules | Reject unsupported markup                      |
+
+Source membership only proves that a reference exists. Checking whether the source supports the sentence is a separate task, and an automated judge can make mistakes.
+
+## Separate exact rules from estimated judgments
+
+Use ordinary application code for facts the application knows. Whether a field is present, an identifier belongs to the current account, or a response exceeds a length limit does not require a second language model.
+
+Judgments about abusive content or whether an answer follows a document can require a classifier or model. Treat their scores as inputs to a policy. Define the categories that matter to your audience and test examples around the chosen threshold.
+
+Google's [safety filter documentation](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/capabilities/configure-safety-filters) describes configurable blocking thresholds and separates filtering from changes to model behavior. A threshold setting should therefore be tested with your workload. Its name does not establish how it handles your support tickets or internal terminology.
+
+## Watch streaming and intermediate outputs
+
+If you stream every token to the browser and check the completed response afterward, the user has already seen the text. Decide whether your application can buffer the full answer, validate chunks with enough context, or restrict streaming to content that is safe to reveal before final validation.
+
+Also inspect intermediate material. An agent may generate a tool argument without placing it in the visible answer. A retrieval step may return private data that never appears on screen but enters a trace. Checking the final chat message leaves those paths outside the control.
+
+AWS documents an [ApplyGuardrail API](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-use-independent-api.html) that can assess text independently of a model invocation. An independent assessment can help at additional boundaries, but your integration still chooses the content to submit and the action to take afterward.
+
+## Handle rejection without a retry loop
+
+A rejected answer should lead to a bounded recovery path. For the handbook assistant, one retry with a narrower instruction might be reasonable when a source identifier is missing. If the second answer also fails validation, return the source links or ask the employee to narrow the question.
+
+Do not keep asking the model until a detector eventually accepts something. Repeated generation increases cost and creates more chances for an unsuitable answer to pass. Apply the same validation to regenerated text, and keep the original failure in the diagnostic record.
+
+Avoid forwarding sensitive rejected text to another model merely to explain the error. A short internal error code is often enough for the application to choose a useful user message.
+
+## Review the whole answer path after changes
+
+Keep a set of handbook questions with expected sources, allowed output shapes and known failure cases. Run it when you change the model, retrieval settings, prompts or guardrail configuration. Compare helpfulness as well as blocking behavior.
+
+Record the deployed versions together. If a new document format breaks source extraction, the symptom may look like a model problem. Being able to reproduce the exact retrieval result and policy version will make that distinction easier to find.

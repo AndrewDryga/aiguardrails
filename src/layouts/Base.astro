@@ -1,0 +1,129 @@
+---
+import "@fontsource/ibm-plex-sans/400.css";
+import "@fontsource/ibm-plex-sans/500.css";
+import "@fontsource/ibm-plex-sans/600.css";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/instrument-serif/400.css";
+import "../styles/global.css";
+import { site } from "../site";
+interface Props {
+  title: string;
+  description: string;
+  schema?: Record<string, unknown>[];
+  noindex?: boolean;
+}
+const { title, description, schema = [], noindex = false } = Astro.props;
+const canonical = new URL(Astro.url.pathname, site.origin).href;
+const entities = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": site.origin + "/#website",
+    name: site.name,
+    url: site.origin + "/",
+    publisher: {
+      "@type": "Organization",
+      name: "Emisar",
+      url: "https://emisar.dev/",
+    },
+  },
+  ...schema,
+];
+---
+
+<!doctype html>
+<html lang="en" data-theme={site.theme}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta
+      name="robots"
+      content={
+        noindex ? "noindex, follow" : "index, follow, max-image-preview:large"
+      }
+    />
+    <meta property="og:type" content={schema.length ? "article" : "website"} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:image" content={site.origin + "/social.png"} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="theme-color"
+      content={site.theme === "guardrails" ? "#224dd4" : "#355b39"}
+    />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {entities.map((entity) => (
+      <script
+        type="application/ld+json"
+        set:html={JSON.stringify(entity).replace(/</g, "\u003c")}
+      />
+    ))}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">
+      Skip to content
+    </a>
+    <header class="site-header wrap">
+      <a class="brand" href="/" aria-label={site.name + " home"}>
+        <svg
+          width="28"
+          height="28"
+          viewBox="0 0 28 28"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d={
+              site.theme === "guardrails"
+                ? "M5 4v20M23 4v20M5 9h18M5 19h18"
+                : "M5 4h18v20H5zM9 10h10M9 15h6M9 20h10"
+            }
+            stroke="currentColor"
+            stroke-width="2"
+          />
+        </svg>
+        {site.name}
+      </a>
+      <nav aria-label="Main navigation">
+        <a href="/guides/">Guides</a>
+        <a href={"/tools/" + site.tool + "/"}>
+          {site.theme === "guardrails" ? "Policy lab" : "Decision tool"}
+        </a>
+        <a href="/resources/">Resources</a>
+        <a href="/about/">About</a>
+      </nav>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="site-footer wrap">
+      <div>
+        <a class="brand" href="/">
+          {site.name}
+        </a>
+        <p>
+          Practical guides from the people building{" "}
+          <a href="https://emisar.dev/">Emisar</a>.
+        </p>
+      </div>
+      <div class="footer-links">
+        <a href="/tools-we-build/">Tools we build</a>
+        <a href="/about/">Editorial policy</a>
+        <a href="/guides/">All guides</a>
+        <a href="/llms.txt">Text index</a>
+      </div>
+      <p class="footer-note">
+        Emisar, <a href="https://ryker.emisar.dev/">Ryker</a> and{" "}
+        <a href="https://coop.dryga.com/">co:op</a> share a team. Our examples
+        explain their limits as well as their uses.
+      </p>
+    </footer>
+  </body>
+</html>

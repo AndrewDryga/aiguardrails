@@ -1,0 +1,87 @@
+---
+import Base from "../layouts/Base.astro";
+import { site } from "../site";
+const guardrails = site.theme === "guardrails";
+const resources = guardrails
+  ? [
+      {
+        title: "Guardrail review worksheet",
+        type: "Markdown · editable",
+        text: "A working checklist for boundaries, failure tests, evidence and recovery. Add a link to the evidence behind each checked item.",
+        href: "/downloads/guardrail-review.md",
+      },
+      {
+        title: "Policy lab test cases",
+        type: "JSON · example fixtures",
+        text: "Allowed, held and denied requests for the policy lab. Use them to inspect rule order, then write cases for your own policy.",
+        href: "/downloads/policy-test-cases.json",
+      },
+    ]
+  : [
+      {
+        title: "Agent governance policy",
+        type: "Markdown · editable",
+        text: "A starting policy covering scope, approval, enforcement, evidence, incidents and expiring exceptions.",
+        href: "/downloads/agent-governance-policy.md",
+      },
+      {
+        title: "Agent inventory",
+        type: "CSV · blank template",
+        text: "Track each agent’s owner, job, tools, credentials, data access, revocation path and review date.",
+        href: "/downloads/agent-inventory.csv",
+      },
+      {
+        title: "Audit record example",
+        type: "JSON · example only",
+        text: "An example of linked request, decision and result fields. Choose the fields your workflow needs and keep sensitive payloads out.",
+        href: "/downloads/audit-record-example.json",
+      },
+    ];
+---
+
+<Base
+  title={"Templates and downloads | " + site.name}
+  description={
+    "Download practical " +
+    site.name.toLowerCase() +
+    " checklists and examples. Editable resources with explanations and no signup."
+  }
+>
+  <section class="page-intro wrap">
+    <p class="eyebrow">Working resources</p>
+    <h1>
+      Take a useful
+      <br />
+      starting point
+    </h1>
+    <p class="lede">
+      Download a copy, adapt it to your system and record the evidence behind
+      your decisions. No signup.
+    </p>
+  </section>
+  <section class="resource-grid wrap">
+    {resources.map((r) => (
+      <article class="resource">
+        <p class="eyebrow">{r.type}</p>
+        <h2>{r.title}</h2>
+        <p>{r.text}</p>
+        <a href={r.href} download>
+          Download ↓
+        </a>
+      </article>
+    ))}
+  </section>
+  <section class="wrap narrow prose">
+    <h2>Use the example with its limits</h2>
+    <p>
+      A document describes a rule. Your system still has to enforce it. Before
+      using a template in production, check the identity, exact action, target
+      and failure behavior in your own environment.
+    </p>
+    <p>
+      Every guide also has a Markdown download.{" "}
+      <a href="/guides/">Find a guide</a> or{" "}
+      <a href={"/tools/" + site.tool + "/"}>{site.toolLabel.toLowerCase()}</a>.
+    </p>
+  </section>
+</Base>

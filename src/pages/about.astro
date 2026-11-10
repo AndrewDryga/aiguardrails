@@ -1,0 +1,87 @@
+---
+import Base from "../layouts/Base.astro";
+import { site } from "../site";
+---
+
+<Base
+  title={"About and editorial policy | " + site.name}
+  description={
+    "Who publishes " +
+    site.name +
+    ", how we check our guides, and how our products relate to the advice."
+  }
+>
+  <section class="page-intro wrap narrow">
+    <p class="eyebrow">About this site</p>
+    <h1>
+      Useful advice.
+      <br />
+      Clear ownership.
+    </h1>
+    <p class="lede">
+      {site.name} is published by the team behind Emisar, Ryker and co:op.
+    </p>
+  </section>
+  <div class="prose wrap narrow">
+    <h2>Why we publish these guides</h2>
+    <p>
+      Giving an agent tools creates practical questions. What can it read? What
+      can it change? Where should a request stop? Our guides explain the
+      controls and the tradeoffs, with examples you can use in your own system.
+    </p>
+    <p>
+      We build products in this area, so we have a commercial interest in some
+      of the topics. Product links are labeled, and the{" "}
+      <a href="/tools-we-build/">tools we build</a> page explains their
+      different roles.
+    </p>
+    <h2>How we write and check</h2>
+    <p>
+      Each guide links to the documents behind its technical claims. We prefer
+      primary sources: the standard, the project's documentation, or the code
+      that owns a behavior. Example policies and records are teaching material.
+      They are not reports of a customer's deployment.
+    </p>
+    <p>
+      Review dates mean we checked the article's content. They do not mean we
+      ran every vendor product, certified an integration, or tested a production
+      system. We label runnable examples, conceptual examples and browser-only
+      demonstrations separately.
+    </p>
+    <h2>Where the advice stops</h2>
+    <p>
+      A guardrail addresses a defined failure. A policy needs enforcement. A
+      sandbox has its own boundary. None of these makes every permitted action
+      harmless. Adapt the examples to your assets, permissions and recovery
+      procedures.
+    </p>
+    <p>
+      Our governance templates are engineering starting points. Requirements for
+      a particular industry, contract or jurisdiction need the right specialist
+      review.
+    </p>
+    <h2>Privacy</h2>
+    <p>
+      The interactive tools run in your browser. They do not send the values you
+      enter to us. We do not add analytics, advertising scripts or tracking
+      cookies. GitHub Pages serves the site and may process request data under{" "}
+      <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">
+        GitHub's privacy statement
+      </a>
+      .
+    </p>
+    <h2>Related reading</h2>
+    <p>
+      {site.theme === "guardrails" ? (
+        <a href="https://aiagentgovernance.dev/">
+          AI Agent Governance covers ownership, permissions and operating
+          procedures.
+        </a>
+      ) : (
+        <a href="https://aiguardrails.dev/">
+          AI Guardrails covers technical checks, failure cases and testing.
+        </a>
+      )}
+    </p>
+  </div>
+</Base>

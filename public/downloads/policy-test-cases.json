@@ -1,0 +1,82 @@
+{
+  "purpose": "Fixtures for this site\u2019s educational policy lab. Not a production security benchmark.",
+  "cases": [
+    {
+      "name": "Production restart without approval",
+      "request": {
+        "action": "restart_service",
+        "environment": "production",
+        "authorized": true,
+        "approved": false,
+        "policyAvailable": true
+      },
+      "expectedDecision": "hold"
+    },
+    {
+      "name": "Approved production restart",
+      "request": {
+        "action": "restart_service",
+        "environment": "production",
+        "authorized": true,
+        "approved": true,
+        "policyAvailable": true
+      },
+      "expectedDecision": "allow"
+    },
+    {
+      "name": "No target access even with approval",
+      "request": {
+        "action": "restart_service",
+        "environment": "production",
+        "authorized": false,
+        "approved": true,
+        "policyAvailable": true
+      },
+      "expectedDecision": "deny"
+    },
+    {
+      "name": "Forbidden export even with approval",
+      "request": {
+        "action": "export_data",
+        "environment": "production",
+        "authorized": true,
+        "approved": true,
+        "policyAvailable": true
+      },
+      "expectedDecision": "deny"
+    },
+    {
+      "name": "Policy unavailable",
+      "request": {
+        "action": "restart_service",
+        "environment": "production",
+        "authorized": true,
+        "approved": false,
+        "policyAvailable": false
+      },
+      "expectedDecision": "deny"
+    },
+    {
+      "name": "Allowed metric read",
+      "request": {
+        "action": "read_metrics",
+        "environment": "production",
+        "authorized": true,
+        "approved": false,
+        "policyAvailable": true
+      },
+      "expectedDecision": "allow"
+    },
+    {
+      "name": "Unknown action",
+      "request": {
+        "action": "shell",
+        "environment": "production",
+        "authorized": true,
+        "approved": false,
+        "policyAvailable": true
+      },
+      "expectedDecision": "deny"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+---
+import type { CollectionEntry } from "astro:content";
+interface Props {
+  guides: CollectionEntry<"guides">[];
+  compact?: boolean;
+}
+const { guides, compact = false } = Astro.props;
+---
+
+<div class:list={["guide-list", { compact }]}>
+  {guides.map((guide, index) => (
+    <a
+      class="guide-row"
+      href={"/guides/" + guide.id + "/"}
+      data-search={[
+        guide.data.title,
+        guide.data.description,
+        guide.data.category,
+        guide.data.primaryKeyword,
+        ...guide.data.relatedKeywords,
+      ]
+        .join(" ")
+        .toLowerCase()}
+    >
+      <span class="guide-number">{String(index + 1).padStart(2, "0")}</span>
+      <div>
+        <span class="category">{guide.data.category}</span>
+        <h3>{guide.data.title}</h3>
+        {!compact && <p>{guide.data.description}</p>}
+      </div>
+      <span class="row-arrow" aria-hidden="true">
+        ↗
+      </span>
+    </a>
+  ))}
+</div>

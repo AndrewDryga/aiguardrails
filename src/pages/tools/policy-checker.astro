@@ -1,0 +1,164 @@
+---
+import Base from "../../layouts/Base.astro";
+---
+
+<Base
+  title="AI guardrails policy lab: allow, hold or deny"
+  description="Try an example tool-action policy. Change target access, action, environment and approval to see why a request is allowed, held or denied."
+>
+  <section class="page-intro wrap">
+    <p class="eyebrow">Policy lab</p>
+    <h1>
+      What should happen
+      <br />
+      before this action runs?
+    </h1>
+    <p class="lede">
+      Change the conditions and inspect the decision. This is a small,
+      deterministic example of an action guardrail.
+    </p>
+  </section>
+  <div class="tool-layout wrap">
+    <form class="tool-panel" id="policy-form">
+      <h2>The request</h2>
+      <div class="field">
+        <label for="action">Action</label>
+        <select id="action" name="action">
+          <option value="read_metrics">Read service metrics</option>
+          <option value="restart_service" selected>
+            Restart a service
+          </option>
+          <option value="export_data">Export customer data</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="environment">Environment</label>
+        <select id="environment" name="environment">
+          <option value="production">Production</option>
+          <option value="staging">Staging</option>
+        </select>
+      </div>
+      <label class="check-label">
+        <input id="authorized" type="checkbox" checked />
+        The agent has access to this target
+      </label>
+      <label class="check-label">
+        <input id="approved" type="checkbox" />A person approved this exact
+        action and target
+      </label>
+      <label class="check-label">
+        <input id="policy-available" type="checkbox" checked />
+        The current policy can be checked
+      </label>
+      <noscript>
+        <p class="no-script">
+          Turn on JavaScript to change the example. The policy rules and
+          starting result are readable below.
+        </p>
+      </noscript>
+    </form>
+    <section class="result-panel" aria-live="polite" aria-atomic="true">
+      <p class="result-status" id="result-rule">
+        Require approval before the side effect
+      </p>
+      <h2 id="result-title">Wait for approval</h2>
+      <p id="result-reason">
+        A production restart needs approval bound to this exact action and
+        target. It has not run.
+      </p>
+      <button class="button secondary" id="download-decision" type="button">
+        Download this example
+      </button>
+      <p class="tool-note">
+        Runs in your browser. Nothing is sent to an agent or a server. This
+        example is not a security boundary and does not execute a command.
+      </p>
+    </section>
+  </div>
+  <section class="policy-rules wrap">
+    <h2>The rules, in order</h2>
+    <ol>
+      <li>Reject unknown actions and environments.</li>
+      <li>Stop if the policy cannot be checked.</li>
+      <li>Deny requests outside the agent's target access.</li>
+      <li>Deny customer data export in this example.</li>
+      <li>Hold a production restart until the exact request has approval.</li>
+      <li>Allow the remaining declared actions.</li>
+    </ol>
+    <p>
+      The rule order matters. Selecting approval does not grant access to a new
+      target or permit a forbidden action. A production implementation must bind
+      the decision to authenticated identity, exact arguments and current policy
+      at execution time.
+    </p>
+    <p>
+      <a href="/guides/tool-calling-guardrails/">
+        Read about tool-call guardrails
+      </a>{" "}
+      or{" "}
+      <a href="/guides/ai-guardrails-testing/">
+        build a test set for your own rules
+      </a>
+      .
+    </p>
+  </section>
+</Base>
+<script>
+  import { evaluatePolicy } from "../../lib/policy.mjs";
+  const form = document.querySelector<HTMLFormElement>("#policy-form")!;
+  const getInput = () => ({
+    action: document.querySelector<HTMLSelectElement>("#action")!.value,
+    environment:
+      document.querySelector<HTMLSelectElement>("#environment")!.value,
+    authorized:
+      document.querySelector<HTMLInputElement>("#authorized")!.checked,
+    approved: document.querySelector<HTMLInputElement>("#approved")!.checked,
+    policyAvailable:
+      document.querySelector<HTMLInputElement>("#policy-available")!.checked,
+  });
+  function update() {
+    const result = evaluatePolicy(getInput());
+    document.querySelector("#result-rule")!.textContent = result.rule;
+    document.querySelector("#result-title")!.textContent = (
+      {
+        allow: "Allow this action",
+        hold: "Wait for approval",
+        deny: "Deny this action",
+      } as Record<string, string>
+    )[result.decision];
+    document.querySelector("#result-reason")!.textContent = result.reason;
+  }
+  form.addEventListener("change", (event) => {
+    if ((event.target as HTMLElement).matches("#action, #environment"))
+      document.querySelector<HTMLInputElement>("#approved")!.checked = false;
+    update();
+  });
+  form.addEventListener("submit", (e) => e.preventDefault());
+  update();
+  document
+    .querySelector("#download-decision")!
+    .addEventListener("click", () => {
+      const request = getInput();
+      const url = URL.createObjectURL(
+        new Blob(
+          [
+            JSON.stringify(
+              {
+                kind: "educational-example",
+                request,
+                result: evaluatePolicy(request),
+              },
+              null,
+              2,
+            ),
+          ],
+          { type: "application/json" },
+        ),
+      );
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "guardrail-decision-example.json";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+</script>
