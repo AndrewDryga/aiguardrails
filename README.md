@@ -27,7 +27,7 @@ Project settings:
 
 Connect the GitHub repository through Cloudflare Pages and attach `aiguardrails.dev` under Custom domains in the same account as its DNS zone. Cloudflare creates the DNS record and provisions HTTPS. Attach `www.aiguardrails.dev` too and redirect it to the canonical apex domain. Production deploys publish the `dist` output only after every check in the build command passes. Branch previews keep the production canonical URLs and Cloudflare's preview `noindex` header.
 
-No server adapter, runtime secrets, database or Pages Functions are needed. The canonical domain is served from `/`. Keep the default `pages.dev` production host out of search results using an exact-host rule once its assigned name is known. Verify live HTTPS, canonical URLs, real 404 responses, redirects and tool downloads after deployment.
+No server adapter, runtime secrets, database or Pages Functions are needed. The canonical domain is served from `/`. The host-specific rules in `public/_headers` keep `pages.dev` aliases and previews out of search results while leaving the canonical domains indexable. Verify live HTTPS, canonical URLs, real 404 responses, redirects and tool downloads after deployment.
 
 Official references: [Astro on Pages](https://developers.cloudflare.com/pages/framework-guides/deploy-an-astro-site/), [custom domains](https://developers.cloudflare.com/pages/configuration/custom-domains/) and [Node version selection](https://developers.cloudflare.com/pages/configuration/build-image/).
 
